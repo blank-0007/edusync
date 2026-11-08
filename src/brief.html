@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>EduSync — Offline-First Learning Infrastructure</title>
+<style>
+:root{
+  --navy:#0F1B2D; --teal:#0E7C6B; --ink:#101828; --ink2:#344054; --muted:#667085;
+  --line:#E4E7EC; --bg2:#F7F9FC; --amber:#B45309; --amber-soft:#FDF3E3;
+}
+@page { size: A4; margin: 15mm 14mm 16mm 14mm; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink); font-size: 9.6pt; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.cover { border-bottom: 3px solid var(--teal); padding-bottom: 10mm; margin-bottom: 8mm; }
+.kicker { font-size: 7.6pt; letter-spacing: .16em; text-transform: uppercase; color: var(--teal); font-weight: 700; }
+.cover h1 { font-size: 26pt; letter-spacing: -.03em; margin: 4mm 0 2mm; line-height: 1.05; }
+.cover .sub { font-size: 11pt; color: var(--ink2); }
+.meta { margin-top: 4mm; font-size: 8pt; color: var(--muted); }
+h1 { font-size: 17pt; letter-spacing: -.02em; margin: 0 0 3mm; }
+h2 { font-size: 13.4pt; letter-spacing: -.015em; margin: 8mm 0 2.5mm; padding-bottom: 1.6mm;
+     border-bottom: 1px solid var(--line); break-after: avoid; }
+h3 { font-size: 10.6pt; margin: 5mm 0 1.8mm; color: var(--navy); break-after: avoid; }
+p { margin: 0 0 2.6mm; color: var(--ink2); }
+strong { color: var(--navy); }
+a { color: var(--teal); text-decoration: none; }
+code { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 8.4pt; background: var(--bg2);
+       border: 1px solid var(--line); border-radius: 3px; padding: 0 2px; color: #0A5B4F; }
+pre { background: #0F1B2D; color: #D7E4F2; padding: 3.2mm 4mm; border-radius: 3mm; overflow: hidden;
+      break-inside: avoid; margin: 0 0 3mm; }
+pre code { background: none; border: none; color: inherit; font-size: 7.5pt; line-height: 1.55; padding: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 8.2pt; margin: 0 0 3.6mm; break-inside: avoid; }
+th { text-align: left; background: var(--navy); color: #fff; font-size: 7.2pt; letter-spacing: .07em;
+     text-transform: uppercase; padding: 1.8mm 2mm; font-weight: 700; }
+td { padding: 1.7mm 2mm; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink2); }
+tr:nth-child(even) td { background: #FAFBFD; }
+blockquote { margin: 0 0 3mm; padding: 2.6mm 3.6mm; background: var(--amber-soft);
+             border-left: 3px solid var(--amber); border-radius: 0 2mm 2mm 0; color: #7A3E06;
+             font-weight: 550; break-inside: avoid; }
+ul, ol { margin: 0 0 3mm; padding-left: 5mm; color: var(--ink2); }
+li { margin-bottom: 1.3mm; }
+hr { border: none; border-top: 1px solid var(--line); margin: 6mm 0; }
+figure { margin: 4mm 0 5mm; break-inside: avoid; }
+figure img { width: 100%; border: 1px solid var(--line); border-radius: 2.5mm; display: block; }
+figcaption { font-size: 7.6pt; color: var(--muted); margin-top: 1.6mm; text-align: center; }
+h2 + p, h3 + p { margin-top: 0; }
+</style></head>
+<body>
+<div class="cover">
+  <div class="kicker">Technical EdTech Hackathon · Problem 1 · Very hard</div>
+  <h1>EduSync — Offline-First Learning Infrastructure</h1>
+  <div class="sub">Offline-first learning infrastructure — problem definition, solution, architecture, stack and product design</div>
+  <div class="meta">Theme: education technology · Domains: distributed systems, databases, networking, fault tolerance · Brief's stack: React · Node.js · PostgreSQL · IndexedDB · Redis · WebSockets · Docker</div>
+</div>
+<figure><img src="../assets/00-overview.png" alt="EduSync at a glance"><figcaption>EduSync at a glance — problem, solution, architecture, merge ladder, stack and rubric evidence</figcaption></figure>
+<h2>0. The one-paragraph answer</h2>
+<p>A normal LMS is a thin client over a server database: every read is an API call, every write is a server transaction. Remove the network and you get three failures — dead UI, lost writes, and divergent copies of the truth. <strong>EduSync inverts that: the device is the source of truth and the network is an optimisation.</strong> Every user action is durably recorded locally in an append-only, HLC-ordered operation log; documents are Yjs CRDTs so concurrent edits merge losslessly; records (submissions, grades, exam sessions) are immutable server-validated facts keyed by client-generated idempotency IDs so retries can never duplicate them. Sync is a resumable, back-pressured state machine that pushes coalesced batches and pulls deltas by state vector. When merge is genuinely impossible, both versions are frozen and surfaced in a <strong>Conflict Inbox</strong> for a human decision — so the brief's advanced twist ("reconcile conflicting edits without silently losing valid work") becomes a testable invariant, not a hope.</p>
+<hr>
+<h2>1. The problem, stated more clearly</h2>
+<h3>1.1 What the brief literally asks for</h3>
+<p>A distributed learning platform that lets students <strong>access lessons, submit assignments, take examinations and collaborate when internet access is unavailable</strong>, and that <strong>synchronises data reliably across devices</strong> once connectivity returns. The deck lists six challenges: offline-first architecture with local persistence; conflict-aware sync across devices; background sync queues with retries and idempotent operations; distributed file storage and versioning; real-time collaboration when connectivity is restored; data integrity and duplicate-submission prevention. The twist: two students edit the same shared document offline, and on reconnect <strong>both edits must be reconciled without silent data loss</strong>.</p>
+<h3>1.2 What it actually means</h3>
+<p>The innocent phrase "access lessons when internet is unavailable" hides the whole difficulty. Offline-first is not "cache the API responses." It is a <strong>distributed-systems problem wearing an education costume</strong>: multiple replicas (one per device, plus one per server node) with no reliable clock, no reliable ordering, and an unreliable message channel — and the product requirement that they converge to the <em>same</em> truth with <em>zero</em> loss of acknowledged work.</p>
+<p>That decomposes into five problems that constrain each other:</p>
+<table><thead><tr><th>#</th><th>Problem</th><th>What breaks with a naive build</th><th>What it really demands</th></tr></thead><tbody>
+<tr><td><strong>P1</strong></td><td><strong>Availability</strong></td><td>UI blocks on I/O; a dropped request loses a draft</td><td>Durable local persistence (records <em>and</em> documents), instant local writes, cache/eviction policy, and a UI that never waits on the network. Offline is <em>partial</em> (2G, captive portals, background throttling), not a boolean.</td></tr>
+<tr><td><strong>P2</strong></td><td><strong>Convergence</strong></td><td>Wall-clock last-write-wins silently deletes one side</td><td>Causality without trusted clocks (HLC), commutative merge for text, a deterministic and <em>auditable</em> answer for scalars, and an exit hatch when no automatic rule is valid.</td></tr>
+<tr><td><strong>P3</strong></td><td><strong>Exactly-once effects</strong></td><td>Retry storm produces 3 submissions; double-click produces 2 attempts</td><td>At-least-once transport + client-generated idempotency keys + immutable server attempts + a unique index as the dedupe authority.</td></tr>
+<tr><td><strong>P4</strong></td><td><strong>Integrity without trust</strong></td><td>Offline exam answers are unverifiable; device clock is trivially changed</td><td>Signed, sealed exam packages; monotonic timing anchored to a signed server timestamp; a tamper-evident hash-chained answer log; server-side verification that <em>flags</em> for human review instead of auto-failing.</td></tr>
+<tr><td><strong>P5</strong></td><td><strong>Resource reality</strong></td><td>A 3-day reconnect tries to upload 400 MB and dies</td><td>Delta sync (state vectors, per-table cursors), coalesced batches, chunked resumable uploads, compressed payloads, bounded queues, battery-aware scheduling.</td></tr>
+</tbody></table>
+<h3>1.3 The requirement that drives all design choices</h3>
+<p>The twist names the failure mode precisely: <strong>silent loss of valid work</strong>. A merge that "resolves" a conflict by discarding one side is not a solution — it is data loss with a log line. So the product requirement is stronger than "sync works":</p>
+<blockquote><strong>No acknowledged edit is ever destroyed without a human-visible record of it.</strong></blockquote>
+<p>Every architectural decision below exists to make that invariant true, and the demo must <em>prove</em> it rather than assert it.</p>
+<h3>1.4 Scope for a 48-hour build</h3>
+<p><strong>In:</strong> one course, two roles (student, instructor); lessons + media with offline availability; assignment draft + idempotent submit; shared-document co-editing; one offline exam; sync engine; conflict inbox; sync centre; integrity ledger; observability. <strong>Out (state honestly):</strong> live proctoring/video, plagiarism detection, SCORM/QTI import, payments, timetabling, full accessibility audit, production auth (MFA/SSO), multi-node Postgres HA.</p>
+<hr>
+<h2>2. The solution</h2>
+<h3>2.1 Design principles</h3>
+<ol>
+<li><strong>Local write first, always.</strong> An action appends to the device's op log and renders immediately. There is no spinner between a student and their own words.</li>
+<li><strong>Two data classes, two merge strategies.</strong> <em>Documents</em> are CRDTs (Yjs) — merge is commutative, loss is impossible by construction. <em>Records</em> are not CRDTs: they are immutable, server-ordered, server-validated facts with idempotency keys. Conflating these is the classic offline-first mistake.</li>
+<li><strong>One append-only op log per device, ordered by Hybrid Logical Clock.</strong> Ops are immutable, idempotent (ULID <code>opId</code>), signed by the device key, and carry their author.</li>
+<li><strong>A merge ladder, not a single rule.</strong> Auto-merge where possible; escalate where not; end in a human decision — never in a silent overwrite.</li>
+<li><strong>At-least-once transport, exactly-once effects.</strong> Every write is idempotent; every submission carries a client-generated <code>submissionId</code>; the database's unique index is the dedupe authority.</li>
+<li><strong>Delta everything.</strong> Push coalesced batches; pull by state vector / cursor; resumable chunked blobs. A three-day reconnect costs kilobytes, not gigabytes.</li>
+<li><strong>Everything auditable.</strong> Submissions and exam events are hash-chained; every reconciliation decision records actor, inputs and outcome.</li>
+</ol>
+<h3>2.2 What the student experiences</h3>
+<table><thead><tr><th>Moment</th><th>What they see</th></tr></thead><tbody>
+<tr><td>Before losing network</td><td>"Available offline" chips on cached lessons, a storage meter, prefetch on enrolment, and a sealed exam package for the exam window</td></tr>
+<tr><td>While offline</td><td>Never blocked. Status pill: <code>Offline · 12 changes queued</code>. Drafts autosave locally. Exam timer runs from a signed start token. Co-editors' last-known cursors are shown with an "as of 14:02" caveat</td></tr>
+<tr><td>On reconnect</td><td>Batches drain in the background: <code>Syncing 7/12 → Synced · just now</code>. Unmergeable conflicts appear in the <strong>Conflict Inbox</strong> with a two-pane diff and three actions — keep mine, keep theirs, merge manually — and both versions remain in history forever</td></tr>
+<tr><td>Retry storm</td><td>Five identical submits produce <strong>one</strong> canonical attempt; the audit log shows four duplicate deliveries <em>absorbed</em> rather than lost</td></tr>
+</tbody></table>
+<h3>2.3 Sync protocol (the contract that makes it correct)</h3>
+<pre><code>op = {
+  "opId": "01J9Z6K3Q8R2V7M4X1N5B0T6AC",   // ULID, client-generated → idempotency
+  "deviceId": "dev_7f3a…",
+  "hlc": "1762598400123:3:dev_7f3a…",     // physical ms : logical counter : node
+  "entity": "submission", "entityId": "sub_01J9…",
+  "type": "create" | "update" | "delete" | "append",
+  "baseRev": 42, "payload": { … }, "sig": "ed25519:…"
+}
+
+POST /sync/push  { deviceId, ops[≤200 or ≤512KB] }
+  → { results:[{ opId, status: applied|duplicate|rejected|conflict, serverRev, reason }], serverHlc }
+
+POST /sync/pull  { deviceId, docVectors:{docId: stateVector}, recordCursor }
+  → { updates[], records[], conflicts[], nextCursor }</code></pre>
+<p><strong>Why it converges:</strong> the unique index on <code>op_id</code> makes push idempotent (a duplicate returns the original <code>serverRev</code>, so blind retry is safe); HLC gives total order per entity with a deterministic tiebreak (<code>deviceId</code>); Yjs updates commute, so document state is order-independent; pull-then-push-then-pull with state vectors makes the second pull cheap; and a <code>GET /sync/state-hash</code> lets tests assert byte-identical convergence across devices.</p>
+<p><strong>Why it is honest:</strong> backoff is <code>min(30s, 500ms·2ⁿ) ± 25%</code> jitter; <code>navigator.onLine</code> is treated as a hint, never as truth; queues are bounded by <em>coalescing superseded drafts only</em> — submitted work is never dropped; a failed probe moves the UI to <code>Degraded</code> and says so.</p>
+<figure><img src="../assets/diagrams/02-sync-sequence.png" alt="Two devices reconnect — nothing is lost"><figcaption>Two devices reconnect — nothing is lost</figcaption></figure>
+<h3>2.4 How the advanced twist is solved</h3>
+<ol>
+<li>Both devices are Yjs peers while offline; each edit is an independent update with a client clock.</li>
+<li>A reconnects: its pending updates land on the journal; server persists them and returns a snapshot vector.</li>
+<li>B reconnects with a stale vector: it pulls A's updates and pushes its own. Yjs merges both runs — <strong>interleaving preserved, no keystroke dropped</strong>, both devices byte-identical (property-tested over random arrival orders).</li>
+<li>If the conflict is <em>semantic</em> rather than textual — two different submitted versions of one assignment, or a student draft vs an instructor annotation — no CRDT rule can decide. The system <strong>freezes both versions as immutable artifacts</strong>, writes a <code>conflict</code> row, and opens the Review Inbox. Nothing is chosen automatically, nothing is destroyed, a human decides, and the decision is recorded.</li>
+<li>If the edits touch <em>different fields</em> of the same record, the ladder's field-level rule merges them and only the genuinely contested field escalates.</li>
+</ol>
+<p><strong>CRDTs remove silent loss for text; the immutable conflict ledger removes silent loss for semantics.</strong></p>
+<h3>2.5 Merge ladder</h3>
+<table><thead><tr><th>Level</th><th>Situation</th><th>Strategy</th><th>Loss risk</th></tr></thead><tbody>
+<tr><td>L0</td><td>values identical</td><td>no-op</td><td>none</td></tr>
+<tr><td>L1</td><td>collaborative text / lists</td><td>Yjs CRDT merge (commutative)</td><td>none</td></tr>
+<tr><td>L2</td><td>independent scalar fields of one record</td><td>per-field HLC last-writer + <code>deviceId</code> tiebreak; both values retained in history</td><td>none</td></tr>
+<tr><td>L3</td><td>domain policy (grades → instructor wins; deadlines → server clock; enrolment → server wins)</td><td>policy merge, recorded</td><td>none</td></tr>
+<tr><td>L4</td><td>genuinely contested (two submitted versions, conflicting annotations)</td><td><strong>freeze both → Conflict Inbox → human decision</strong></td><td>none — nothing discarded</td></tr>
+</tbody></table>
+<figure><img src="../assets/diagrams/03-conflict-ladder.png" alt="The merge ladder"><figcaption>The merge ladder</figcaption></figure>
+<h3>2.6 Submission integrity (duplicate prevention)</h3>
+<ul>
+<li><code>submissionId</code> is generated <strong>once</strong>, on first submit intent, and persisted with the draft; every retry reuses it.</li>
+<li>The server writes an immutable attempt with <code>UNIQUE(assignment_id, student_id, attempt_no)</code> and <code>UNIQUE(idempotency_key)</code>. The first request wins; replays return <code>200</code> with the <em>same</em> attempt, not <code>409</code>, so clients can retry forever.</li>
+<li><code>content_hash</code> detects "same content, new submission id" and files it as a revision of the same attempt.</li>
+<li>Offline submissions carry <code>client_submitted_at</code> <strong>and</strong> <code>server_received_at</code>; deadline policy is evaluated server-side with a bounded offline grace window, and both timestamps are visible to the instructor — no silent penalty.</li>
+</ul>
+<h3>2.7 Offline exam integrity</h3>
+<ol>
+<li><strong>Sealed before the network leaves:</strong> <code>{ciphertext, iv, keyId, nonce, validFrom, validUntil, sig}</code> signed by the server's Ed25519 key, content key wrapped per student+session; the device verifies the signature offline and refuses to open outside the window.</li>
+<li><strong>Time anchored, not trusted:</strong> at issue, the server sends <code>serverTimeAtIssue</code>; the device anchors the countdown to a <strong>monotonic</strong> timer. Wall-clock edits, timezone changes and reboots are detected and logged.</li>
+<li><strong>Tamper-evident answers:</strong> every autosave event is chained <code>hᵢ = SHA-256(hᵢ₋₁ ‖ eventᵢ)</code> and signed with the device key; the log is encrypted at rest.</li>
+<li><strong>Verify, flag, never auto-fail:</strong> the server checks chain integrity, single-use nonce, window validity and device binding; anomalies raise an <strong>integrity flag for human review</strong> — exactly what the rubric asks for ("for high-risk features, especially examination monitoring, require human review and privacy safeguards").</li>
+<li><strong>Privacy boundary:</strong> no keystroke logging, no camera, no screen capture. Only events needed to prove the log is intact are recorded, and students can inspect their own integrity report.</li>
+</ol>
+<figure><img src="../assets/diagrams/05-exam-integrity.png" alt="Offline exam integrity"><figcaption>Offline exam integrity</figcaption></figure>
+<hr>
+<h2>3. Architecture</h2>
+<figure><img src="../assets/diagrams/01-architecture.png" alt="System architecture"><figcaption>System architecture</figcaption></figure>
+<h3>3.1 Tiers</h3>
+<ul>
+<li><strong>Client (PWA):</strong> React UI · local command bus · <strong>sync engine</strong> (scheduler, batcher, backoff, conflict router) · local stores — SQLite-WASM on OPFS for records, IndexedDB for Yjs documents and the op queue · content-addressed blob cache · WebCrypto device keys · service worker · connectivity probe (not <code>navigator.onLine</code>).</li>
+<li><strong>Edge:</strong> CDN/TLS, rate limiting, API gateway that authenticates JWT + device key and routes sync-aware traffic.</li>
+<li><strong>Services (Node.js):</strong> <code>sync-service</code> (op ingest, dedupe, HLC ordering, revisions, acks) · <code>doc-service</code> (Yjs update journal, snapshots, WS rooms, presence) · <code>submission-service</code> (immutable attempts, idempotency, content hash, deadline policy) · <code>exam-service</code> (sealed packages, session tokens, nonce single-use, chain verification, integrity flags) · <code>media-service</code> (presigned chunked uploads, checksum verification, content-addressed blobs).</li>
+<li><strong>Data:</strong> PostgreSQL 16 (<code>op_log</code> with <code>UNIQUE(op_id)</code>, JSONB payloads, transactional outbox), Redis 7 (dedupe fast path, presence, rate limits, queues), BullMQ workers (snapshots, merges, notifications, integrity review), S3/MinIO (blobs keyed by SHA-256), OpenTelemetry → Prometheus/Grafana/Tempo/Loki.</li>
+</ul>
+<h3>3.2 The reconciliation spine</h3>
+<pre><code>intent → durable local op → UI reflects instantly → queue → batched push →
+server dedupe (UNIQUE op_id) + HLC order + validation → ack(serverRev) →
+delta pull (state vectors) → merge (ladder) → converge → audit</code></pre>
+<p>This spine — not the CRUD endpoints — is the actual product. Everything else exists to protect it.</p>
+<h3>3.3 Device sync state machine</h3>
+<figure><img src="../assets/diagrams/04-sync-state-machine.png" alt="Sync state machine"><figcaption>Sync state machine</figcaption></figure>
+<p>States are surfaced honestly: <code>Offline · 12 queued</code>, <code>Syncing 7/12</code>, <code>Synced · 2m ago</code>, <code>Degraded · retrying in 8s</code>, <code>Needs review · 1 conflict</code>. The invariant: <strong>un-acked ops are never dropped</strong> — not on failure, not on restart, not on eviction (only derived caches are evictable).</p>
+<h3>3.4 Data model (core)</h3>
+<pre><code>users · devices(user, pubkey) · courses · lessons · lesson_media · enrollments
+assignments(rubric, due_at) · submissions(attempt_no, status, content_hash,
+   client_submitted_at, server_received_at, idempotency_key) · submission_files
+exams · exam_packages(sig, nonce, window) · exam_sessions · exam_events(hash chain)
+documents(snapshot_vector) · doc_updates(hlc, seq)
+op_log(op_id PK, device_id, hlc, entity, type, payload, base_rev, server_rev, sig)
+device_cursors(state vectors) · conflicts(left, right, resolution) · audit_events(hash chain)
+blobs(sha256 PK, size, mime, uri, refcount) · outbox(transactional → queue)</code></pre>
+<hr>
+<h2>4. Tech stack (kept to the brief's spine, extended only where the problem forces it)</h2>
+<table><thead><tr><th>Layer</th><th>Choice</th><th>Why this, not something else</th></tr></thead><tbody>
+<tr><td>UI</td><td><strong>React 18 + TypeScript + Vite</strong></td><td>Brief alignment; smallest cold start on low-end devices</td></tr>
+<tr><td>Styling</td><td><strong>Tailwind + Radix</strong></td><td>Accessible dialogs/menus — the rubric explicitly rewards accessibility</td></tr>
+<tr><td>Server state</td><td><strong>TanStack Query</strong></td><td>Stale-while-revalidate is already the right mental model for cached reads</td></tr>
+<tr><td>UI state</td><td><strong>Zustand</strong></td><td>Sync-engine events map cleanly without provider trees</td></tr>
+<tr><td>Local records</td><td><strong>SQLite-WASM on OPFS</strong> (fallback <strong>Dexie/IndexedDB</strong>)</td><td>Real SQL, transactions, indices locally; survives restarts</td></tr>
+<tr><td>Local documents</td><td><strong>Yjs + y-indexeddb + y-websocket</strong></td><td>Proven CRDT, tiny updates, offline merge by construction</td></tr>
+<tr><td>Offline shell</td><td><strong>Workbox service worker</strong></td><td>Versioned precache for app shell + media</td></tr>
+<tr><td>Sync engine</td><td><strong>TypeScript in a Web Worker</strong></td><td>Keeps batching/backoff off the main thread; pure core is unit- and property-testable</td></tr>
+<tr><td>Crypto</td><td><strong>WebCrypto</strong> (Ed25519; libsodium fallback)</td><td>Device keys + local encryption with no native deps</td></tr>
+<tr><td>Runtime</td><td><strong>Node.js 20 LTS</strong></td><td>Brief alignment; one language; <code>ws</code> + Fastify are fast enough</td></tr>
+<tr><td>API</td><td><strong>Fastify + zod</strong></td><td>Schema-first validation is the guardrail for untrusted offline payloads</td></tr>
+<tr><td>Realtime</td><td><strong><code>ws</code> + <code>y-protocols</code></strong></td><td>Binary Yjs updates; no socket.io framing overhead</td></tr>
+<tr><td>DB access</td><td><strong>Drizzle ORM</strong></td><td>Typed SQL; unique indexes are visible and explicit (dedupe depends on them)</td></tr>
+<tr><td>Primary DB</td><td><strong>PostgreSQL 16</strong></td><td><code>UNIQUE(op_id)</code>, JSONB, outbox, HLC indices — the correctness anchor</td></tr>
+<tr><td>Cache/queue</td><td><strong>Redis 7 + BullMQ</strong></td><td>Dedupe fast path, presence, rate limits, retryable jobs</td></tr>
+<tr><td>Blobs</td><td><strong>MinIO (S3 API)</strong></td><td>Local/production parity, presigned chunked PUTs, content-addressed keys</td></tr>
+<tr><td>Packaging</td><td><strong>Docker Compose</strong> (+ Caddy)</td><td>Brief alignment; one-command dev loop and LAN HTTPS demos</td></tr>
+<tr><td>Observability</td><td><strong>OpenTelemetry → Prometheus, Grafana, Tempo, Loki, pino</strong></td><td>The rubric demands evidence; metrics are evidence</td></tr>
+<tr><td>Testing</td><td><strong>Vitest, Playwright (CDP offline + throttling), k6, chaos harness, convergence property tests</strong></td><td>Proves convergence and duplicate-prevention instead of claiming them</td></tr>
+</tbody></table>
+<p><strong>Deliberate rejections (say these out loud — they signal judgment):</strong> Automerge (better history, heavier payloads — Yjs wins on 2G) · CouchDB/PouchDB replication (replicates documents, pushes conflict semantics to the wrong layer) · server-authoritative CRUD with an "offline cache" (this is precisely the bug the brief is testing for) · per-record vector clocks (metadata blow-up; HLC + doc state vectors suffice) · Firebase (offline exists, but exam integrity and audit requirements need our own server).</p>
+<hr>
+<h2>5. What it looks like</h2>
+<h3>Lesson library — the app is honest about being offline</h3>
+<figure><img src="../assets/mockups/01-library.png" alt="Lesson library"><figcaption>Lesson library</figcaption></figure>
+<p>Cached lessons carry an "Available offline" chip; the storage meter makes readiness concrete; the status pill states the truth (<code>Offline · 12 changes queued</code>) instead of pretending.</p>
+<h3>Assignment workspace — writing never waits for the network</h3>
+<figure><img src="../assets/mockups/02-assignment.png" alt="Assignment workspace"><figcaption>Assignment workspace</figcaption></figure>
+<p>Autosave is local and instant (<code>Autosaved 14:02 · 3 ops queued · retrying in 8s</code>). Submit shows a receipt tied to one canonical attempt, so students know retries are safe.</p>
+<h3>Conflict Inbox — the twist, made visible and humane</h3>
+<figure><img src="../assets/mockups/03-conflict-inbox.png" alt="Conflict inbox"><figcaption>Conflict inbox</figcaption></figure>
+<p>A two-pane diff with author, device and HLC per side; three explicit actions. Both versions stay in history — the "no silent loss" invariant, rendered as UI.</p>
+<h3>Sync Center — observability for the student</h3>
+<figure><img src="../assets/mockups/04-sync-center.png" alt="Sync center"><figcaption>Sync center</figcaption></figure>
+<p>Every queued op, its attempt count and backoff, devices in play, storage used, and one "Retry now". Distributed-systems state made legible.</p>
+<h3>Offline exam — sealed, timed, tamper-evident</h3>
+<figure><img src="../assets/mockups/05-exam.png" alt="Offline exam"><figcaption>Offline exam</figcaption></figure>
+<p>Sealed package verified offline; countdown anchored to a signed server start; answer log integrity chain (<code>148 events · chain head 9f3c…</code>); explicit reassurance that answers cannot be lost.</p>
+<h3>Instructor dashboard — integrity flags, never auto-fail</h3>
+<figure><img src="../assets/mockups/06-instructor.png" alt="Instructor dashboard"><figcaption>Instructor dashboard</figcaption></figure>
+<p>Attempt counts expose absorbed duplicates; client-vs-server timestamps are shown side by side; integrity anomalies land in a human review queue, consistent with the rubric's demand for human review on high-risk features.</p>
+<hr>
+<h2>6. Validation &amp; demo</h2>
+<p><strong>Invariants turned into tests</strong></p>
+<table><thead><tr><th>Invariant</th><th>Test</th></tr></thead><tbody>
+<tr><td>Convergence</td><td>Random permutations of the same op set across 3 replicas → identical state hash</td></tr>
+<tr><td>No silent loss</td><td>Every acknowledged op appears in final state or in a <code>conflict</code> row (never neither)</td></tr>
+<tr><td>Exactly-once submission</td><td>50 concurrent submits with the same <code>submissionId</code> → 1 attempt, 49 <code>duplicate</code> results</td></tr>
+<tr><td>Durable queue</td><td>Kill the app with N pending ops → restart → all N eventually acknowledged</td></tr>
+<tr><td>Exam integrity</td><td>Tamper with the answer log or replay a nonce → flagged, answers preserved, no auto-fail</td></tr>
+<tr><td>Delta efficiency</td><td>3-day disconnect → reconnect payload measured in KB (report the number)</td></tr>
+</tbody></table>
+<p><strong>Demo script (7 min):</strong> load course online (watch prefetch) → <strong>wifi off</strong> → read lesson, write and submit assignment → kill and reopen the app (work persists) → co-edit one document from two devices offline → submit the same assignment twice → <strong>wifi on</strong> → batches drain, state converges, Conflict Inbox appears for the genuinely contested edit → resolve it, show both versions in history → Sync Center + Grafana metrics → offline exam with tamper test → state limitations.</p>
+<p><strong>Honest limitations:</strong> one course / two roles; integrity-focused exam monitoring (no proctoring); manual conflict resolution (policy engine is the follow-on); single-node Postgres (no HA claim); media GC is ref-counted but not production-hardened; accessibility verified on core flows only.</p>
+<hr>
+<h2>7. 48-hour build plan</h2>
+<table><thead><tr><th>Hours</th><th>Milestone</th><th>Exit criterion</th></tr></thead><tbody>
+<tr><td>0–6</td><td>Monorepo, docker compose, Postgres/Redis/MinIO, auth, seed course</td><td>app runs, login works</td></tr>
+<tr><td>6–16</td><td>Local persistence + read path: SQLite-WASM adapter, op log, prefetch, service worker</td><td>fully usable with the network off</td></tr>
+<tr><td>16–26</td><td>Sync engine: push/pull, HLC, dedupe index, backoff, state machine, Sync Center</td><td>queue survives restart; reconnect drains</td></tr>
+<tr><td>26–34</td><td>Assignments + submissions: drafts, idempotent attempts, receipts, deadline policy</td><td>5 submits → 1 attempt, proven by test</td></tr>
+<tr><td>34–42</td><td>CRDT docs: rooms, presence, offline co-edit, conflict ledger + inbox</td><td>two offline editors converge byte-identically</td></tr>
+<tr><td>42–46</td><td>Exam: sealed package, monotonic timer, hash chain, verification + flags</td><td>tamper test flags, clean test passes</td></tr>
+<tr><td>46–48</td><td>Chaos test, convergence property suite, metrics, demo dry-run, README</td><td>rubric evidence collected</td></tr>
+</tbody></table>
+<hr>
+<h2>8. Files in this pack</h2>
+<table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody>
+<tr><td><a href="SPEC.md"> 0 </a></td><td>Full engineering specification (protocol, data model, component responsibilities)</td></tr>
+<tr><td><a href="assets/00-overview.png"> 0 </a></td><td>One-slide executive summary</td></tr>
+<tr><td><a href="assets/diagrams/01-architecture.png"> 0 </a></td><td>Three-tier architecture + reconciliation spine</td></tr>
+<tr><td><a href="assets/diagrams/02-sync-sequence.png"> 0 </a></td><td>Two offline devices reconnecting; push/dedupe/merge/pull/converge</td></tr>
+<tr><td><a href="assets/diagrams/03-conflict-ladder.png"> 0 </a></td><td>L0–L4 merge ladder ending in the Conflict Inbox</td></tr>
+<tr><td><a href="assets/diagrams/04-sync-state-machine.png"> 0 </a></td><td>Device sync states, backoff, never-drop guarantee</td></tr>
+<tr><td><a href="assets/diagrams/05-exam-integrity.png"> 0 </a></td><td>Sealed package → local chain → server verify → human review</td></tr>
+<tr><td><a href="assets/mockups/"> 0 </a></td><td>Six product screens (library, assignment, conflict inbox, sync center, exam, instructor)</td></tr>
+<tr><td><a href="src/"> 0 </a></td><td>HTML sources for every render; re-render with <a href="tools/shot.sh"> 0 </a></td></tr>
+</tbody></table>
+</body></html>

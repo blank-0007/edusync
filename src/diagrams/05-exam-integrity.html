@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — 05 Exam integrity</title>
+<link rel="stylesheet" href="../../assets/design.css">
+<style>
+  .canvas{width:2200px;height:1350px}
+  .band{position:absolute;border-radius:18px;border:1px solid var(--line);background:rgba(247,249,252,.9)}
+  .band-head{position:absolute;left:0;right:0;top:0;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+  .band-head .bn{font-size:11.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+  .band-head .br{font-size:10.4px;color:var(--muted)}
+  .stage{position:absolute;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 18px rgba(16,24,40,.07),0 1px 3px rgba(16,24,40,.05);padding:14px 15px;overflow:hidden}
+  .snum{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--mono);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .stt{font-size:13.6px;font-weight:800;color:var(--navy);letter-spacing:-.012em;line-height:1.2}
+  .sbd{font-size:10.4px;line-height:1.47;color:var(--ink2);margin-top:7px}
+  .sbd b{color:var(--ink)}
+  .sbox{background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;margin-top:9px}
+  .ck{display:flex;align-items:flex-start;gap:6px;font-size:9.9px;color:var(--ink2);line-height:1.35}
+  .ck i{color:var(--green);font-style:normal;font-weight:800;flex:0 0 auto}
+  .rail{position:absolute;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1);padding:15px 18px}
+  .sfoot{position:absolute;left:15px;right:15px;bottom:12px;border-top:1px dashed var(--line);padding-top:7px;
+          font-size:9.4px;line-height:1.35;color:var(--muted)}
+  .sfoot b{color:var(--ink2)}
+  .rail .rt{font-size:9.4px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+  .rail .rh{font-size:15px;font-weight:800;color:var(--navy);letter-spacing:-.012em;margin-top:3px}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ================= HEADER ================= -->
+  <div style="position:absolute;left:60px;top:24px;width:1560px">
+    <div class="eyebrow">EduSync · offline exam integrity</div>
+    <div class="h1" style="margin-top:6px;font-size:40px">An exam taken offline, provable afterwards</div>
+    <div class="body" style="margin-top:9px;font-size:13.2px">
+      The device is untrusted and the clocks are not. Integrity comes from a signed package, a monotonic anchor and a
+      tamper-evident answer log — verified on the server, and <b>flagged for a human, never auto-failed</b>.
+    </div>
+  </div>
+  <div style="position:absolute;left:1650px;top:40px;display:flex;gap:9px">
+    <div class="pill amber" style="height:24px">no keystroke logging</div>
+    <div class="pill green" style="height:24px">no auto-fail</div>
+  </div>
+
+  <!-- ================= DEVICE BAND ================= -->
+  <div class="band" style="left:60px;top:158px;width:2080px;height:337px;border-color:var(--teal-line)">
+    <div class="band-head">
+      <div class="bn" style="color:var(--teal)">Device · offline · untrusted</div>
+      <div class="br">no network for the entire exam — the server cannot observe any of this in real time</div>
+    </div>
+
+    <!-- 01 sealed package -->
+    <div class="stage" style="left:20px;top:62px;width:486px;height:265px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum">01</div>
+        <div class="stt">Sealed package</div>
+        <span class="pill amber" style="height:19px;font-size:9px;margin-left:auto">issued online</span>
+      </div>
+      <div class="sbd">Signed and encrypted <b>before</b> the network leaves. The content key is wrapped per student + session.</div>
+      <div class="sbox">
+        <div class="mono" style="font-size:9.5px;line-height:1.6;color:var(--ink2)">{ ciphertext, iv, keyId, nonce,
+  validFrom, validUntil, sig }</div>
+        <div class="mono" style="font-size:9.2px;line-height:1.5;color:var(--teal);margin-top:4px">sig = Ed25519(server key)</div>
+      </div>
+      <div class="ck" style="margin-top:8px"><i>✓</i><span>Content is ciphertext on the device — a stolen laptop yields nothing readable.</span></div>
+      <div class="sfoot">The window <b>validFrom → validUntil</b> is signed too — the paper opens only inside it.</div>
+    </div>
+
+    <!-- 02 offline verification -->
+    <div class="stage" style="left:538px;top:62px;width:486px;height:265px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum">02</div>
+        <div class="stt">Offline signature verification</div>
+      </div>
+      <div class="sbd">The device verifies the server signature with a <b>pinned key</b> — no network needed — and refuses to open the paper outside its window.</div>
+      <div class="sbox" style="display:flex;flex-direction:column;gap:5px">
+        <div class="ck"><i>✓</i><span>signature valid against the pinned server key</span></div>
+        <div class="ck"><i>✓</i><span>now ∈ [validFrom, validUntil] per the signed window</span></div>
+        <div class="ck"><i>✓</i><span>package nonce not seen before on this device</span></div>
+        <div class="ck" style="color:var(--red)"><i style="color:var(--red)">✗</i><span>else: refuse to open, log the attempt</span></div>
+      <div class="sfoot">Pinned at install: <span class="mono">ed25519:9f3c…</span> — a substituted package is rejected offline.</div>
+      </div>
+    </div>
+
+    <!-- 03 monotonic timer -->
+    <div class="stage" style="left:1056px;top:62px;width:486px;height:265px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum">03</div>
+        <div class="stt">Signed start anchor</div>
+      </div>
+      <div class="sbd">The server signs the issue time. The countdown is anchored to a <b>monotonic</b> timer, not the wall clock.</div>
+      <div class="sbox">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <div class="mono" style="font-size:9.3px;color:var(--muted)">serverTimeAtIssue</div>
+          <div class="mono" style="font-size:9.6px;color:var(--ink)">1762600000000</div>
+        </div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:3px">
+          <div class="mono" style="font-size:9.3px;color:var(--muted)">elapsed (monotonic)</div>
+          <div class="mono" style="font-size:9.6px;color:var(--teal)">00:41:07</div>
+        </div>
+        <div class="meter" style="margin-top:6px;height:6px"><span style="width:68%;background:var(--teal)"></span></div>
+      </div>
+      <div class="ck" style="margin-top:8px"><i>✓</i><span>wall-clock edits, timezone changes and reboots are <b>detected and logged</b>.</span></div>
+      <div class="sfoot">Detected and logged: wall-clock jump · timezone edit · reboot. The timer is unaffected.</div>
+    </div>
+
+    <!-- 04 hash chain -->
+    <div class="stage" style="left:1574px;top:62px;width:486px;height:265px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum">04</div>
+        <div class="stt">Hash-chained answer log</div>
+      </div>
+      <div class="sbd">Every autosave event extends the chain and is signed by the device key; the log is encrypted at rest with a session-derived key.</div>
+      <div class="sbox">
+        <div class="mono" style="font-size:9.5px;color:var(--ink2)">h<sub>i</sub> = SHA-256( h<sub>i-1</sub> ‖ event<sub>i</sub> )</div>
+        <div style="display:flex;align-items:center;gap:4px;margin-top:7px">
+          <div style="flex:1;height:22px;border-radius:5px;background:var(--teal-soft);border:1px solid var(--teal-line);display:flex;align-items:center;justify-content:center" class="mono"><span style="font-size:8.6px;color:var(--teal);font-weight:700">h0</span></div>
+          <span style="color:var(--teal);font-size:9px">→</span>
+          <div style="flex:1;height:22px;border-radius:5px;background:var(--teal-soft);border:1px solid var(--teal-line);display:flex;align-items:center;justify-content:center" class="mono"><span style="font-size:8.6px;color:var(--teal);font-weight:700">h1</span></div>
+          <span style="color:var(--teal);font-size:9px">→</span>
+          <div style="flex:1;height:22px;border-radius:5px;background:var(--teal-soft);border:1px solid var(--teal-line);display:flex;align-items:center;justify-content:center" class="mono"><span style="font-size:8.6px;color:var(--teal);font-weight:700">h2</span></div>
+          <span style="color:var(--teal);font-size:9px">→</span>
+          <div style="flex:1;height:22px;border-radius:5px;background:var(--navy);border:1px solid var(--navy);display:flex;align-items:center;justify-content:center" class="mono"><span style="font-size:8.6px;color:#8FD1C6;font-weight:700">hn</span></div>
+        </div>
+      </div>
+      <div class="ck" style="margin-top:8px"><i>✓</i><span>Deleting or reordering an event breaks every hash after it.</span></div>
+      <div class="sfoot">At rest: <b>AES-GCM</b> with a key derived from the session token — ciphertext on disk.</div>
+    </div>
+  </div>
+
+  <!-- ================= SERVER BAND ================= -->
+  <div class="band" style="left:60px;top:565px;width:2080px;height:337px;border-color:var(--indigo-line);background:rgba(238,242,255,.4)">
+    <div class="band-head">
+      <div class="bn" style="color:var(--indigo)">Server · on reconnect</div>
+      <div class="br">verify provenance and ordering without trusting the device clock — and never discard answers</div>
+    </div>
+
+    <!-- 05 resumable upload -->
+    <div class="stage" style="left:20px;top:62px;width:486px;height:265px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum" style="background:var(--indigo)">05</div>
+        <div class="stt">Resumable upload</div>
+      </div>
+      <div class="sbd">Chunked PUTs with a checksum per chunk. Killed mid-upload, the client resumes at the last confirmed chunk.</div>
+      <div class="sbox">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div class="mono" style="font-size:9.3px;color:var(--muted)">chunks</div>
+          <div class="mono" style="font-size:9.6px;color:var(--indigo);font-weight:700">7 / 12 resumed</div>
+        </div>
+        <div class="meter" style="margin-top:6px;height:6px"><span style="width:58%;background:var(--indigo)"></span></div>
+      </div>
+      <div class="ck" style="margin-top:8px"><i>✓</i><span>at-least-once delivery, exactly-once record: the session id is the idempotency key.</span></div>
+      <div class="sfoot">Only confirmed chunks count; a killed tab resumes from the last acknowledged chunk.</div>
+    </div>
+
+    <!-- 06 verification -->
+    <div class="stage" style="left:538px;top:62px;width:486px;height:265px;border-color:var(--indigo-line)">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum" style="background:var(--indigo)">06</div>
+        <div class="stt">Four independent checks</div>
+      </div>
+      <div class="sbd">exam-service re-derives everything the device claimed.</div>
+      <div class="sbox" style="display:flex;flex-direction:column;gap:6px">
+        <div class="ck"><i>✓</i><span><b>chain integrity</b> — recompute h0…hn, every signature verifies</span></div>
+        <div class="ck"><i>✓</i><span><b>nonce single-use</b> — this session opened exactly once</span></div>
+        <div class="ck"><i>✓</i><span><b>valid window</b> — issue → submit inside [opens, closes]</span></div>
+        <div class="ck"><i>✓</i><span><b>device binding</b> — the signing key belongs to this student + device</span></div>
+      <div class="sfoot">Checks are independent. A failed check raises a flag — it never deletes an answer.</div>
+      </div>
+    </div>
+
+    <!-- 07 pass or flag -->
+    <div class="stage" style="left:1056px;top:62px;width:486px;height:265px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum" style="background:var(--indigo)">07</div>
+        <div class="stt">Pass or integrity flag</div>
+      </div>
+      <div class="sbd">The outcome is binary, and neither branch deletes anything.</div>
+      <div style="margin-top:9px;background:var(--green-soft);border:1px solid var(--green-line);border-radius:9px;padding:8px 10px">
+        <div style="font-size:9.4px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--green)">PASS</div>
+        <div style="font-size:9.7px;color:#065F3B;margin-top:2px">answers accepted · receipt + chain root stored</div>
+      </div>
+      <div style="margin-top:7px;background:var(--amber-soft);border:1px solid var(--amber-line);border-radius:9px;padding:8px 10px">
+        <div style="font-size:9.4px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--amber)">INTEGRITY FLAG</div>
+        <div style="font-size:9.7px;color:#7A3E06;margin-top:2px">anomaly recorded for review · answers preserved in full</div>
+      </div>
+      <div class="ck" style="margin-top:8px"><i>✓</i><span>A flag is a <b>question for a human</b>, never a penalty.</span></div>
+      <div class="sfoot">Receipt = chain root + server signature, stored with the session.</div>
+    </div>
+
+    <!-- 08 human review -->
+    <div class="stage" style="left:1574px;top:62px;width:486px;height:265px;border-color:var(--amber-line);background:var(--amber-soft)">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="snum" style="background:var(--amber)">08</div>
+        <div class="stt">Human review</div>
+      </div>
+      <div class="sbd">An instructor reads the integrity report next to the answer log and makes the call.</div>
+      <div class="sbox" style="background:#fff">
+        <div class="mono" style="font-size:9.3px;line-height:1.6;color:var(--ink2)">decision { reviewer, verdict,
+  rationale, decided_at }</div>
+      </div>
+      <div class="ck" style="margin-top:8px"><i>✓</i><span>The student can inspect their own integrity report.</span></div>
+      <div class="ck" style="margin-top:4px"><i>✓</i><span>No automated fail, ever — even for a flagged anomaly.</span></div>
+      <div class="sfoot">Review SLA 48 h · the decision is written to the audit chain and shown to the student.</div>
+    </div>
+  </div>
+
+  <!-- ================= BOTTOM ================= -->
+  <div class="rail" style="left:60px;top:930px;width:760px;height:280px;background:var(--navy);border-color:var(--navy)">
+    <div class="rt" style="color:#8FD1C6">Privacy boundary</div>
+    <div class="rh" style="color:#fff;font-size:17px">Integrity without surveillance</div>
+    <div style="font-size:10.2px;line-height:1.5;color:#9FB3C8;margin-top:7px">We record the events needed to prove the answer log is intact — nothing behavioural.</div>
+    <div style="display:flex;gap:7px;margin-top:10px">
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(244,169,162,.35);border-radius:9px;padding:7px 9px">
+        <div style="font-size:11px;font-weight:800;color:#F4A9A2">✗ no keystroke logging</div>
+        <div style="font-size:8.8px;color:#9FB3C8;margin-top:2px;line-height:1.3">no per-key timing, no typing profile</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(244,169,162,.35);border-radius:9px;padding:7px 9px">
+        <div style="font-size:11px;font-weight:800;color:#F4A9A2">✗ no camera</div>
+        <div style="font-size:8.8px;color:#9FB3C8;margin-top:2px;line-height:1.3">no background video, no screen capture</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(155,216,180,.35);border-radius:9px;padding:7px 9px">
+        <div style="font-size:11px;font-weight:800;color:#9BD8B4">✓ student can inspect</div>
+        <div style="font-size:8.8px;color:#9FB3C8;margin-top:2px;line-height:1.3">their own report + full answer log</div>
+      </div>
+    </div>
+    <div style="margin-top:9px">
+      <div style="font-size:8.8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#7E93A8;margin-bottom:4px">What we do record — nothing else</div>
+      <div style="display:flex;gap:6px">
+        <span class="pill" style="background:rgba(143,209,198,.14);color:#8FD1C6;height:20px;font-size:8.8px">session start / end anchors</span>
+        <span class="pill" style="background:rgba(143,209,198,.14);color:#8FD1C6;height:20px;font-size:8.8px">hash per autosave</span>
+        <span class="pill" style="background:rgba(143,209,198,.14);color:#8FD1C6;height:20px;font-size:8.8px">device key id</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail" style="left:860px;top:930px;width:640px;height:280px">
+    <div class="rt">Tamper evidence</div>
+    <div class="rh">One broken link invalidates the tail</div>
+    <div style="display:flex;align-items:center;gap:5px;margin-top:12px">
+      <div style="flex:1;height:38px;border-radius:8px;background:var(--teal-soft);border:1px solid var(--teal-line);display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div class="mono" style="font-size:9px;font-weight:800;color:var(--teal)">h0</div><div style="font-size:8px;color:var(--muted)">genesis</div></div>
+      <span style="color:var(--muted2);font-size:11px">→</span>
+      <div style="flex:1;height:38px;border-radius:8px;background:var(--teal-soft);border:1px solid var(--teal-line);display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div class="mono" style="font-size:9px;font-weight:800;color:var(--teal)">h1</div><div style="font-size:8px;color:var(--muted)">answer[1]</div></div>
+      <span style="color:var(--muted2);font-size:11px">→</span>
+      <div style="flex:1;height:38px;border-radius:8px;background:var(--red-soft);border:1px solid var(--red-line);display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div class="mono" style="font-size:9px;font-weight:800;color:var(--red)">h2 ✗</div><div style="font-size:8px;color:var(--red)">tampered</div></div>
+      <span style="color:var(--muted2);font-size:11px">→</span>
+      <div style="flex:1;height:38px;border-radius:8px;background:var(--bg3);border:1px dashed var(--red-line);display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div class="mono" style="font-size:9px;font-weight:800;color:var(--muted)">h3…hn</div><div style="font-size:8px;color:var(--muted)">all invalid</div></div>
+    </div>
+    <div class="mono" style="font-size:9.6px;color:var(--ink2);margin-top:10px">h<sub>i</sub> = SHA-256( h<sub>i-1</sub> ‖ event<sub>i</sub> ) · signed per event</div>
+    <div class="small" style="font-size:9.2px;margin-top:5px;line-height:1.4">The server replays the chain offline and compares the root it recomputes with the root the device signed at the end of the session.</div>
+    <div style="display:flex;gap:6px;margin-top:9px">
+      <div class="pill grey" style="height:21px;font-size:9px">① fetch chunks</div>
+      <div class="pill grey" style="height:21px;font-size:9px">② re-derive h0…hn</div>
+      <div class="pill grey" style="height:21px;font-size:9px">③ compare signed root</div>
+      <div class="pill grey" style="height:21px;font-size:9px">④ pass or flag</div>
+    </div>
+  </div>
+
+  <div class="rail" style="left:1540px;top:930px;width:600px;height:280px;background:var(--bg2)">
+    <div class="rt" style="color:var(--amber)">The honest failure mode</div>
+    <div class="rh">Flag, review, record — never auto-fail</div>
+    <div style="margin-top:9px;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px"><span class="pill amber" style="height:20px;font-size:9.2px">anomaly</span><span style="font-size:9.6px;color:var(--ink2)">chain break, replay, wrong window or unknown device</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="pill amber" style="height:20px;font-size:9.2px">flag</span><span style="font-size:9.6px;color:var(--ink2)">answers stored anyway, with the evidence attached</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="pill teal" style="height:20px;font-size:9.2px">review</span><span style="font-size:9.6px;color:var(--ink2)">a human reads the report and decides</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="pill green" style="height:20px;font-size:9.2px">record</span><span style="font-size:9.6px;color:var(--ink2)">decision + rationale written to the audit chain</span></div>
+    </div>
+    <div style="margin-top:9px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 10px">
+      <div style="font-size:9.4px;color:var(--ink2);line-height:1.4"><b>Why not auto-fail:</b> a dead battery or a clock reset would otherwise punish an honest student. A human sees the evidence and decides.</div>
+    </div>
+    <div style="margin-top:8px" class="small">The rubric asks for human review and privacy safeguards on high-risk features. That is a product requirement, not a disclaimer.</div>
+  </div>
+
+  <!-- ================= ARROWS ================= -->
+  <svg class="arrow-layer" viewBox="0 0 2200 1350" width="2200" height="1350">
+    <defs>
+      <marker id="b-teal" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 Z" fill="#0E7C6B"/></marker>
+      <marker id="b-indigo" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 Z" fill="#3E63DD"/></marker>
+    </defs>
+    <!-- pipeline inside device band -->
+    <line x1="566" y1="348" x2="592" y2="348" stroke="#0E7C6B" stroke-width="2.4" marker-end="url(#b-teal)"/>
+    <line x1="1084" y1="348" x2="1110" y2="348" stroke="#0E7C6B" stroke-width="2.4" marker-end="url(#b-teal)"/>
+    <line x1="1602" y1="348" x2="1628" y2="348" stroke="#0E7C6B" stroke-width="2.4" marker-end="url(#b-teal)"/>
+    <!-- device -> server (reconnect) -->
+    <path d="M1877 481 L1877 528 L323 528 L323 619" stroke="#3E63DD" stroke-width="2.6" fill="none" marker-end="url(#b-indigo)"/>
+    <!-- pipeline inside server band -->
+    <line x1="566" y1="755" x2="592" y2="755" stroke="#3E63DD" stroke-width="2.4" marker-end="url(#b-indigo)"/>
+    <line x1="1084" y1="755" x2="1110" y2="755" stroke="#3E63DD" stroke-width="2.4" marker-end="url(#b-indigo)"/>
+    <line x1="1602" y1="755" x2="1628" y2="755" stroke="#3E63DD" stroke-width="2.4" marker-end="url(#b-indigo)"/>
+  </svg>
+  <div class="flow-label" style="left:900px;top:506px;border-color:var(--indigo-line);background:var(--indigo-soft);color:var(--indigo)">network returns · WSS + HTTPS · chunked, resumable, at-least-once</div>
+
+  <div class="panel" style="position:absolute;left:60px;top:1240px;width:2080px;height:60px;display:flex;align-items:center;gap:22px;padding:0 20px">
+    <div class="small" style="font-size:11.2px"><b style="color:var(--ink)">The guarantee:</b> an offline exam produces a verifiable record — and the worst case is <b style="color:var(--amber)">a human review</b>, never a silent fail or a deleted answer.</div>
+    <div style="flex:1"></div>
+    <div class="pill green" style="height:24px">signed + hash-chained</div>
+    <div class="pill teal" style="height:24px">resumable upload</div>
+    <div class="pill amber" style="height:24px">flag → human review</div>
+  </div>
+</div>
+</body>
+</html>

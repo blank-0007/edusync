@@ -1,0 +1,24 @@
+{
+  "name": "edusync",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:server": "npm -w @edusync/server run dev",
+    "dev:web": "npm -w @edusync/web run dev",
+    "test": "npm -w @edusync/protocol run test && npm -w @edusync/server run test",
+    "typecheck": "npm -w @edusync/protocol run typecheck && npm -w @edusync/server run typecheck && npm -w @edusync/web run typecheck",
+    "build": "npm -w @edusync/web run build",
+    "e2e": "node --import tsx scripts/e2e-smoke.mjs",
+    "demo": "bash scripts/demo.sh",
+    "ui": "node --import tsx scripts/ui-verify.mjs",
+    "verify": "bash scripts/verify.sh"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.1"
+  }
+}

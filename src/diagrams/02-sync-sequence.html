@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — 02 Sync sequence</title>
+<link rel="stylesheet" href="../../assets/design.css">
+<style>
+  .canvas{width:2400px;height:1500px}
+  .phase{position:absolute;background:rgba(247,249,252,.92);border:1px solid #EDF0F4;border-radius:14px}
+  .phase.alt{background:rgba(252,253,254,.96)}
+  .plab{position:absolute}
+  .plab .t{font-size:12.4px;font-weight:800;letter-spacing:.085em;text-transform:uppercase;color:var(--navy)}
+  .plab .n{font-family:var(--mono);font-size:19px;font-weight:800;color:var(--teal);line-height:1}
+  .plab .s{font-size:10.4px;line-height:1.42;color:var(--muted);margin-top:4px;width:286px}
+  .seqcard{position:absolute;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh-1);padding:9px 12px}
+  .seqcard .ct{font-size:9.3px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+  .oprow{font-family:var(--mono);font-size:9.15px;line-height:1.55;color:var(--ink2);white-space:nowrap}
+  .oprow b{color:var(--navy);font-weight:600}
+  .devhead{position:absolute;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-2);padding:11px 14px}
+  .devhead .dn{font-size:14px;font-weight:800;color:var(--navy);letter-spacing:-.01em}
+  .devhead .ds{font-size:9.6px;font-family:var(--mono);color:var(--muted);margin-top:1px}
+  .rail{position:absolute;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1);padding:16px 18px}
+  .rail .rt{font-size:9.6px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--teal)}
+  .rail .rh{font-size:14px;font-weight:800;color:var(--navy);letter-spacing:-.01em;margin-top:3px}
+  .rail .rb{font-size:10.2px;line-height:1.5;color:var(--ink2)}
+  .code{background:var(--navy);border-radius:11px;padding:11px 12px;font-family:var(--mono);font-size:9.05px;line-height:1.52;color:#D5E6E2;white-space:pre;margin-top:8px}
+  .code .k{color:#8FD1C6}
+  .code .m{color:#7E93A8}
+  .hashcard{position:absolute;background:var(--green-soft);border:1px solid var(--green-line);border-radius:12px;padding:9px 11px}
+  .hashcard .hl{font-size:9.4px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#065F3B}
+  .hashcard .hh{font-family:var(--mono);font-size:11px;font-weight:700;color:#065F3B;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ================= HEADER ================= -->
+  <div style="position:absolute;left:60px;top:26px;width:1560px">
+    <div class="eyebrow">EduSync · sync protocol · sequence</div>
+    <div class="h1" style="margin-top:6px;font-size:42px">Two devices reconnect, nothing is lost</div>
+    <div class="body" style="margin-top:10px;font-size:13.6px">
+      Both devices edited the same document offline. Every arrow below is idempotent, order-independent or explicitly recorded —
+      convergence is <b>asserted</b> at the end, not assumed.
+    </div>
+  </div>
+  <div class="legend" style="left:1690px;top:38px;width:650px;justify-content:flex-end;gap:15px">
+    <span class="k"><span class="sw" style="border-top:2.5px solid var(--teal)"></span>push / ack</span>
+    <span class="k"><span class="sw dashed" style="border-top:2.5px solid #22374F"></span>pull / delta</span>
+    <span class="k"><span class="sw dashed" style="border-top:2.5px solid var(--amber)"></span>retry / dedupe</span>
+  </div>
+
+  <!-- ================= DEVICE HEADERS ================= -->
+  <div class="devhead" style="left:430px;top:150px;width:300px;height:78px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="dn">Device A</div><span class="pill amber" style="height:19px;font-size:9.6px"><i class="dot"></i>OFFLINE</span>
+    </div>
+    <div class="ds">dev_7f3a · student · Yjs peer</div>
+    <div class="ds" style="color:var(--amber);margin-top:3px">12 ops queued · 0 acked</div>
+  </div>
+  <div class="devhead" style="left:1020px;top:150px;width:300px;height:78px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="dn">Device B</div><span class="pill amber" style="height:19px;font-size:9.6px"><i class="dot"></i>OFFLINE</span>
+    </div>
+    <div class="ds">dev_b2e1 · student · Yjs peer</div>
+    <div class="ds" style="color:var(--amber);margin-top:3px">7 ops queued · 0 acked</div>
+  </div>
+  <div class="devhead" style="left:1550px;top:150px;width:300px;height:78px;background:var(--navy);border-color:var(--navy)">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="dn" style="color:#fff">Server</div><span class="pill solid-teal" style="height:19px;font-size:9.6px">authority</span>
+    </div>
+    <div class="ds" style="color:#9FB3C8">Postgres · Redis · doc-service</div>
+    <div class="ds" style="color:#8FD1C6;margin-top:3px">op_log rev 43 · doc_42 v41</div>
+  </div>
+
+  <!-- ================= PHASE BANDS ================= -->
+  <div class="phase" style="left:60px;top:238px;width:1830px;height:194px"></div>
+  <div class="phase alt" style="left:60px;top:440px;width:1830px;height:98px"></div>
+  <div class="phase" style="left:60px;top:546px;width:1830px;height:216px"></div>
+  <div class="phase alt" style="left:60px;top:770px;width:1830px;height:116px"></div>
+  <div class="phase" style="left:60px;top:894px;width:1830px;height:160px"></div>
+  <div class="phase alt" style="left:60px;top:1062px;width:1830px;height:192px"></div>
+  <div class="phase" style="left:60px;top:1262px;width:1830px;height:126px"></div>
+
+  <!-- ================= LIFELINES + ARROWS (behind content) ================= -->
+  <!-- ================= ARROWS ================= -->
+  <svg class="arrow-layer" viewBox="0 0 2400 1500" width="2400" height="1500">
+    <defs>
+      <marker id="m-teal" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#0E7C6B"/></marker>
+      <marker id="m-navy" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#22374F"/></marker>
+      <marker id="m-amber" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#B45309"/></marker>
+    </defs>
+
+    <!-- lifelines -->
+    <line x1="580" y1="228" x2="580" y2="1388" stroke="#C9CFD8" stroke-width="1.6" stroke-dasharray="7 6"/>
+    <line x1="1170" y1="228" x2="1170" y2="1388" stroke="#C9CFD8" stroke-width="1.6" stroke-dasharray="7 6"/>
+    <line x1="1700" y1="228" x2="1700" y2="1388" stroke="#7E93A8" stroke-width="1.8" stroke-dasharray="8 6"/>
+
+    <!-- phase 01 self messages -->
+    <path d="M580 274 L626 274 L626 298 L584 298" stroke="#0E7C6B" stroke-width="2.2" fill="none" marker-end="url(#m-teal)"/>
+    <path d="M1170 274 L1216 274 L1216 298 L1174 298" stroke="#0E7C6B" stroke-width="2.2" fill="none" marker-end="url(#m-teal)"/>
+
+    <!-- phase 02 self messages (probe) -->
+    <path d="M580 470 L618 470 L618 494 L584 494" stroke="#0E7C6B" stroke-width="2" fill="none" marker-end="url(#m-teal)"/>
+    <path d="M1170 470 L1208 470 L1208 494 L1174 494" stroke="#0E7C6B" stroke-width="2" fill="none" marker-end="url(#m-teal)"/>
+
+    <!-- phase 03 push -->
+    <line x1="580" y1="590" x2="1692" y2="590" stroke="#0E7C6B" stroke-width="2.3" marker-end="url(#m-teal)"/>
+    <line x1="1700" y1="638" x2="588" y2="638" stroke="#22374F" stroke-width="2.3" stroke-dasharray="8 5" marker-end="url(#m-navy)"/>
+    <line x1="1170" y1="700" x2="1692" y2="700" stroke="#0E7C6B" stroke-width="2.3" marker-end="url(#m-teal)"/>
+    <line x1="1700" y1="748" x2="1178" y2="748" stroke="#22374F" stroke-width="2.3" stroke-dasharray="8 5" marker-end="url(#m-navy)"/>
+
+    <!-- phase 04 retry / dedupe -->
+    <line x1="1170" y1="812" x2="1692" y2="812" stroke="#B45309" stroke-width="2.1" stroke-dasharray="6 5" marker-end="url(#m-amber)"/>
+    <line x1="1700" y1="854" x2="1178" y2="854" stroke="#B45309" stroke-width="2.1" stroke-dasharray="6 5" marker-end="url(#m-amber)"/>
+
+
+    <!-- phase 06 pull -->
+    <line x1="580" y1="1098" x2="1692" y2="1098" stroke="#22374F" stroke-width="2.2" stroke-dasharray="8 5" marker-end="url(#m-navy)"/>
+    <line x1="1700" y1="1138" x2="588" y2="1138" stroke="#0E7C6B" stroke-width="2.2" marker-end="url(#m-teal)"/>
+    <line x1="1170" y1="1190" x2="1692" y2="1190" stroke="#22374F" stroke-width="2.2" stroke-dasharray="8 5" marker-end="url(#m-navy)"/>
+    <line x1="1700" y1="1230" x2="1178" y2="1230" stroke="#0E7C6B" stroke-width="2.2" marker-end="url(#m-teal)"/>
+
+    <!-- phase 07 convergence equality -->
+    <line x1="710" y1="1328" x2="1040" y2="1328" stroke="#9BD8B4" stroke-width="2" stroke-dasharray="5 4"/>
+    <line x1="1300" y1="1328" x2="1570" y2="1328" stroke="#9BD8B4" stroke-width="2" stroke-dasharray="5 4"/>
+  </svg>
+
+  <!-- ================= PHASE LABELS ================= -->
+  <div class="plab" style="left:80px;top:256px">
+    <div class="n">01</div>
+    <div class="t" style="margin-top:4px">Offline edits <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T−2h</span></div>
+    <div class="s">Hours with no network. Each device is self-sufficient: ops are durable before the UI moves, and nothing waits on the server.</div>
+  </div>
+  <div class="plab" style="left:80px;top:456px">
+    <div class="n">02</div>
+    <div class="t" style="margin-top:4px">Reconnect / probe <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T</span></div>
+    <div class="s">navigator.onLine is a hint; an actual request decides.</div>
+  </div>
+  <div class="plab" style="left:80px;top:562px">
+    <div class="n">03</div>
+    <div class="t" style="margin-top:4px">Push batch <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T+0.4s</span></div>
+    <div class="s">Coalesced ops leave in one batched, signed push — ≤200 ops or 512 KB. Both devices push their whole backlog.</div>
+  </div>
+  <div class="plab" style="left:80px;top:786px">
+    <div class="n">04</div>
+    <div class="t" style="margin-top:4px">Dedupe by opId <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T+0.6s</span></div>
+    <div class="s">A lost ack means a blind retry. UNIQUE(op_id) makes the repeat a no-op.</div>
+  </div>
+  <div class="plab" style="left:80px;top:910px">
+    <div class="n">05</div>
+    <div class="t" style="margin-top:4px">HLC order + merge <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T+0.9s</span></div>
+    <div class="s">Causal order without trusted clocks; Yjs merges the two update runs.</div>
+  </div>
+  <div class="plab" style="left:80px;top:1078px">
+    <div class="n">06</div>
+    <div class="t" style="margin-top:4px">Delta pull <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T+1.2s</span></div>
+    <div class="s">State vectors, not table dumps: each device asks for exactly what it is missing.</div>
+  </div>
+  <div class="plab" style="left:80px;top:1278px">
+    <div class="n">07</div>
+    <div class="t" style="margin-top:4px">Converge <span class="pill grey" style="height:17px;font-size:9px;vertical-align:2px">T+1.9s</span></div>
+    <div class="s">Three copies, one hash.</div>
+  </div>
+
+  <!-- ================= PHASE 01 CONTENT ================= -->
+  <div class="seqcard" style="left:430px;top:318px;width:330px">
+    <div class="ct">Local op log · dev_7f3a · 12 queued</div>
+    <div class="oprow" style="margin-top:5px"><b>01J9Z6…T6AC</b> · 1762598400123:3 · insert @12</div>
+    <div class="oprow"><b>01J9Z6…T6AD</b> · 1762598400188:4 · insert @19</div>
+    <div class="oprow"><b>01J9Z6…T6AE</b> · 1762598400251:5 · fmt bold @7</div>
+    <div class="oprow" style="color:var(--muted)">…9 coalesced draft edits</div>
+  </div>
+  <div class="flow-label" style="left:634px;top:266px">edit line 12 → append op → UI instant</div>
+  <div class="seqcard" style="left:1020px;top:318px;width:330px">
+    <div class="ct">Local op log · dev_b2e1 · 7 queued</div>
+    <div class="oprow" style="margin-top:5px"><b>01J9Z7…T9B1</b> · 1762598400455:0 · insert @31</div>
+    <div class="oprow"><b>01J9Z7…T9B2</b> · 1762598400481:1 · delete @4</div>
+    <div class="oprow" style="color:var(--muted)">…5 coalesced draft edits</div>
+  </div>
+  <div class="flow-label" style="left:1224px;top:266px">edit line 12 → append op → UI instant</div>
+  <div class="panel" style="position:absolute;left:1390px;top:318px;width:470px;height:106px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:transparent;border:1.5px dashed #D6DBE3">
+    <div class="small" style="font-size:10.6px;color:var(--muted)"><b style="color:var(--ink2)">Server hears nothing.</b> Both edits exist only as signed ops in two browser profiles — and would survive a dead battery.</div>
+  </div>
+
+  <!-- ================= PHASE 02 CONTENT ================= -->
+  <div class="flow-label teal" style="left:634px;top:462px">probe <span class="mono">GET /health</span> → 200 · CONNECTED</div>
+  <div class="flow-label teal" style="left:1224px;top:462px">probe <span class="mono">GET /health</span> → 200 · CONNECTED</div>
+
+  <div class="small" style="position:absolute;left:430px;top:502px;font-size:10.3px;color:var(--muted)">failed probe → <b style="color:var(--amber)">DEGRADED</b> · retry <span class="mono">min(30 s, 500 ms·2ⁿ) ±25% jitter</span> · <span class="mono">navigator.onLine</span> stays only a hint</div>
+
+  <!-- ================= PHASE 03 CONTENT ================= -->
+  <div class="flow-label teal" style="left:640px;top:558px">POST /sync/push · {deviceId, ops[12]}</div>
+  <div class="flow-label" style="left:640px;top:606px">200 · results: 5 applied · serverHlc 1762598400500</div>
+  <div class="flow-label teal" style="left:1220px;top:668px">POST /sync/push · {deviceId, ops[7]}</div>
+  <div class="flow-label" style="left:1220px;top:716px">200 · results: 7 applied · serverHlc …0500</div>
+
+  <!-- ================= PHASE 04 CONTENT ================= -->
+  <div class="flow-label" style="left:1220px;top:780px;border-color:var(--amber-line);background:var(--amber-soft);color:var(--amber)">retry · identical opIds (ack was lost)</div>
+  <div class="flow-label" style="left:1220px;top:822px;border-color:var(--amber-line);background:var(--amber-soft);color:var(--amber)">200 · duplicate · original serverRev returned</div>
+
+  <div class="panel" style="position:absolute;left:400px;top:790px;width:720px;height:70px;display:flex;flex-direction:column;justify-content:center;padding:0 16px;background:var(--amber-soft);border:1px solid var(--amber-line)">
+    <div class="small" style="font-size:10.4px;color:#7A3E06"><b>At-least-once transport, exactly-once effect.</b> The repeat is absorbed by a unique index — not by a heuristic.</div>
+    <div class="mono" style="font-size:9.6px;color:var(--amber);margin-top:3px">UNIQUE(op_id) in Postgres · Redis SETNX fast path · duplicate → original serverRev</div>
+  </div>
+
+  <!-- ================= PHASE 05 CONTENT ================= -->
+  <div class="flow-label" style="left:1330px;top:922px">server · order by HLC → tiebreak deviceId → apply</div>
+  <div class="seqcard" style="left:1360px;top:962px;width:530px;height:84px">
+    <div class="ct">Server merge · doc-service</div>
+    <div class="oprow" style="margin-top:5px;white-space:normal">doc_42 ← A.updates ⊕ B.updates → rev 44</div>
+    <div class="oprow" style="white-space:normal;color:var(--ink2)">both insert runs survive · conflict router opens 1 semantic conflict</div>
+  </div>
+  <div class="flow-label" style="left:430px;top:962px;border-color:var(--teal-line);background:var(--teal-soft);color:var(--teal)">both devices: SYNCING 7/12</div>
+
+  <!-- ================= PHASE 06 CONTENT ================= -->
+  <div class="flow-label" style="left:640px;top:1074px">POST /sync/pull · vectors {doc_42: 1762620…}</div>
+  <div class="flow-label" style="left:640px;top:1114px">200 · updates:[1 from B] · records:[2]</div>
+  <div class="flow-label" style="left:1220px;top:1166px">POST /sync/pull · vectors {doc_42: 1762615…}</div>
+  <div class="flow-label" style="left:1220px;top:1206px">200 · updates:[1 from A] · records:[1]</div>
+
+  <!-- ================= PHASE 07 CONTENT ================= -->
+  <div class="hashcard" style="left:450px;top:1288px;width:260px">
+    <div class="hl">Device A · SYNCED</div>
+    <div class="hh">0x9f3c41d8…a7</div>
+    <div class="small" style="font-size:9.4px;color:var(--amber);margin-top:1px">1 semantic conflict → inbox</div>
+  </div>
+  <div class="hashcard" style="left:1040px;top:1288px;width:260px">
+    <div class="hl">Device B · SYNCED</div>
+    <div class="hh">0x9f3c41d8…a7</div>
+    <div class="small" style="font-size:9.4px;color:var(--amber);margin-top:1px">1 semantic conflict → inbox</div>
+  </div>
+  <div class="hashcard" style="left:1570px;top:1288px;width:260px;background:var(--navy);border-color:var(--navy)">
+    <div class="hl" style="color:#8FD1C6">Server · authority</div>
+    <div class="hh" style="color:#fff">0x9f3c41d8…a7</div>
+    <div class="small" style="font-size:9.4px;color:#9FB3C8;margin-top:1px">GET /sync/state-hash</div>
+  </div>
+  <div class="flow-label" style="left:728px;top:1316px;border-color:var(--green-line);background:var(--green-soft);color:var(--green)">≡ identical</div>
+  <div class="flow-label" style="left:1318px;top:1316px;border-color:var(--green-line);background:var(--green-soft);color:var(--green)">≡ identical</div>
+
+  <!-- ================= RIGHT RAIL ================= -->
+  <div class="rail" style="left:1920px;top:238px;width:420px;height:452px">
+    <div class="rt">The wire contract</div>
+    <div class="rh">Two idempotent endpoints</div>
+    <div class="code"><span class="k">POST /sync/push</span>
+{ deviceId, ops: [ {
+    opId, hlc, entity,
+    baseRev, payload, sig } ] }
+<span class="m">// ≤ 200 ops or 512 KB</span>
+→ 200 { results: [ {
+    opId,
+    status: "applied" | "duplicate"
+          | "rejected" | "conflict",
+    serverRev } ],
+  serverHlc }
+
+<span class="k">POST /sync/pull</span>
+{ deviceId,
+  docVectors: { doc_42: "AQAA…" },
+  recordCursor: "1762598400…" }
+→ 200 { updates: [
+          { docId, update } ],
+        records: [ … ],
+        conflicts: [ … ],
+        nextCursor }</div>
+    <div class="rb" style="margin-top:7px;font-size:9.8px"><b>duplicate</b> returns the original <span class="mono">serverRev</span> — the client may retry blindly, forever.</div>
+  </div>
+
+  <div class="rail" style="left:1920px;top:708px;width:420px;height:338px">
+    <div class="rt">The advanced twist</div>
+    <div class="rh">Two offline editors, one document</div>
+    <div class="rb" style="margin-top:7px">A and B both edit <span class="mono">doc_42</span> line 12 with no network. Neither knows the other exists.</div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">
+      <div class="oprow" style="white-space:normal;font-size:9.4px"><b style="color:var(--navy)">A</b> insert @12 <span style="color:var(--muted)">"mitochondria is"</span></div>
+      <div class="oprow" style="white-space:normal;font-size:9.4px"><b style="color:var(--navy)">B</b> insert @31 <span style="color:var(--muted)">"the powerhouse"</span></div>
+    </div>
+    <div class="rb" style="margin-top:8px">Arrival order cannot decide the outcome: Yjs updates are commutative and idempotent.</div>
+    <div class="mono" style="font-size:10.4px;color:var(--teal);font-weight:700;margin-top:7px">merge(A, B) ≡ merge(B, A)</div>
+    <div class="rb" style="margin-top:7px">Both insert runs survive, interleaving is preserved — <b style="color:var(--ink)">zero keystrokes dropped</b>. A semantic conflict (two submitted versions) is frozen, never auto-chosen.</div>
+  </div>
+
+  <div class="rail" style="left:1920px;top:1062px;width:420px;height:326px">
+    <div class="rt">Why no keystroke is lost</div>
+    <div class="rh">Three independent guarantees</div>
+    <div class="rb" style="margin-top:8px;line-height:1.45">
+      <b>1 · Durable first.</b> Every edit is an immutable op with a ULID + HLC, appended before the UI moves. Nothing is updated in place.
+    </div>
+    <div class="rb" style="margin-top:7px;line-height:1.45">
+      <b>2 · Commutative merge.</b> Text and lists merge by CRDT; records merge by per-field HLC with a deviceId tiebreak.
+    </div>
+    <div class="rb" style="margin-top:7px;line-height:1.45">
+      <b>3 · Asserted convergence.</b> Property tests replay random op permutations and require one identical state hash.
+    </div>
+    <div class="panel" style="margin-top:9px;padding:8px 10px;background:var(--teal-soft);border-color:var(--teal-line)">
+      <div class="tiny" style="font-size:9.7px;color:#0A5B4F;line-height:1.45">A genuinely contested edit never gets picked automatically — both versions are frozen into the Conflict Inbox, so “lossless” is a property of the system, not a hope.</div>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <div class="panel" style="position:absolute;left:60px;top:1410px;width:2280px;height:58px;display:flex;align-items:center;gap:22px;padding:0 20px">
+    <div class="legend" style="position:static;gap:14px">
+      <span class="k"><span class="sw" style="border-top:2.5px solid var(--teal)"></span>push / ack</span>
+      <span class="k"><span class="sw dashed" style="border-top:2.5px solid #22374F"></span>delta pull</span>
+      <span class="k"><span class="sw dashed" style="border-top:2.5px solid var(--amber)"></span>retry / dedupe</span>
+    </div>
+    <div style="width:1px;height:26px;background:var(--line)"></div>
+    <div class="small" style="font-size:11.2px"><b style="color:var(--ink)">Invariant:</b> at-least-once transport + exactly-once effects = a retry storm is invisible to the student.</div>
+    <div style="flex:1"></div>
+    <div class="pill indigo" style="height:24px">no silent loss</div>
+    <div class="pill teal" style="height:24px">byte-equal convergence</div>
+    <div class="pill green" style="height:24px">audited decisions</div>
+  </div>
+
+
+</div>
+</body>
+</html>

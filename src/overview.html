@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — one-slide overview</title>
+<link rel="stylesheet" href="../assets/design.css">
+<style>
+  .canvas{background:#F7F9FC;background-image:radial-gradient(circle at 1px 1px, rgba(16,24,40,.05) 1px, transparent 0)}
+  .hero{position:absolute;left:0;top:0;right:0;height:206px;background:var(--navy)}
+  .hero .strip{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--teal)}
+  .kicker{position:absolute;left:52px;top:34px;font-size:11.5px;font-weight:750;letter-spacing:.16em;
+          text-transform:uppercase;color:#7FD6C7}
+  .title{position:absolute;left:52px;top:56px;font-size:58px;font-weight:820;letter-spacing:-.035em;color:#fff;line-height:1}
+  .sub{position:absolute;left:56px;top:126px;font-size:16.5px;color:#B6C6D8;font-weight:500;letter-spacing:-.005em}
+  .hero-pills{position:absolute;right:52px;top:40px;display:flex;gap:9px}
+  .hero-pills .pill{height:27px;font-size:11.5px;background:#1F3247;color:#D7E4F2;border:1px solid #2E4762}
+  .hero-pills .pill.t{background:rgba(14,124,107,.22);color:#8FE3D4;border-color:rgba(14,124,107,.55)}
+  .hero-note{position:absolute;right:52px;top:82px;width:470px;text-align:right;font-size:12.2px;line-height:1.5;color:#93A9C2}
+  .cards{position:absolute;left:52px;top:236px;right:52px;display:grid;grid-template-columns:452px 452px 1fr;gap:22px}
+  .col-h{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+  .num{width:22px;height:22px;border-radius:6px;background:var(--navy);color:#fff;font-size:11.5px;font-weight:750;
+       display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .p-item{display:flex;gap:11px;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .p-item:last-child{border-bottom:none}
+  .p-item .ax{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--teal);padding-top:2px;width:24px;flex:0 0 auto}
+  .p-item .tx{font-size:12.6px;line-height:1.42;color:var(--ink2)}
+  .p-item .tx b{color:var(--navy);font-weight:700}
+  .sol{display:flex;gap:11px;align-items:flex-start;padding:9px 0}
+  .sol .ic{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+           font-size:12px;font-weight:800}
+  .arch-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .arch-tier{border:1px solid var(--line);border-radius:9px;background:#fff;padding:7px 10px;font-size:10.8px;font-weight:650;
+             color:var(--navy);box-shadow:var(--sh-1)}
+  .arch-tier.svc{background:var(--bg2)}
+  .arch-label{font-size:9.6px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted2);width:64px;flex:0 0 auto}
+  .spine{margin-top:11px;border-radius:10px;border:1px dashed var(--teal-line);background:var(--teal-soft);padding:9px 11px}
+  .spine .t{font-size:9.6px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
+  .spine .f{font-family:var(--mono);font-size:9.7px;line-height:1.5;color:#0A5B4F}
+  .proof{position:absolute;left:52px;right:52px;top:650px;height:170px;background:#fff;border:1px solid var(--line);
+         border-radius:16px;box-shadow:var(--sh-1);padding:14px 18px}
+  .proof-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .proof-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+  .pf{padding:0 12px;border-left:1px solid var(--line2)}
+  .pf:first-child{border-left:none;padding-left:0}
+  .pf .w{font-size:19px;font-weight:820;color:var(--teal);letter-spacing:-.03em;line-height:1}
+  .pf .c{font-size:10.6px;font-weight:750;color:var(--navy);margin-top:2px;line-height:1.25}
+  .pf .e{font-size:10.4px;line-height:1.4;color:var(--muted);margin-top:5px}
+  .twist{position:absolute;left:52px;right:52px;bottom:74px;background:#fff;border:1px solid var(--line);
+         border-radius:16px;box-shadow:var(--sh-2);padding:14px 18px;display:flex;align-items:center;gap:18px}
+  .ladder{display:flex;align-items:center;gap:6px}
+  .lv{padding:5px 9px;border-radius:7px;font-size:10.6px;font-weight:700;border:1px solid}
+  .lv.a{background:var(--green-soft);border-color:var(--green-line);color:var(--green)}
+  .lv.b{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal)}
+  .lv.c{background:var(--indigo-soft);border-color:var(--indigo-line);color:var(--indigo)}
+  .lv.d{background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber)}
+  .lv.e{background:var(--red-soft);border-color:var(--red-line);color:var(--red)}
+  .lt{font-size:10.5px;font-weight:800;color:var(--muted2);margin-top:5px;text-align:center}
+  .footline{position:absolute;left:52px;right:52px;bottom:24px;display:flex;align-items:center;justify-content:space-between}
+  .stack{font-size:11.2px;color:var(--muted)}
+  .stack b{color:var(--ink2);font-weight:700}
+  .inv{display:flex;align-items:center;gap:8px;font-size:11.6px;font-weight:750;color:var(--navy)}
+  .inv .dot{width:7px;height:7px;border-radius:50%;background:var(--teal)}
+</style>
+</head>
+<body>
+<div class="canvas w1600" id="canvas">
+
+  <div class="hero">
+    <div class="kicker">Technical EdTech Hackathon · Problem 1 · Very hard</div>
+    <div class="title">EduSync</div>
+    <div class="sub">Offline-First Learning Infrastructure — distribution, convergence &amp; integrity where there is no network</div>
+    <div class="hero-pills">
+      <div class="pill t"><span class="dot"></span>Offline-first</div>
+      <div class="pill">CRDT + op-log</div>
+      <div class="pill">Exactly-once</div>
+    </div>
+    <div class="hero-note">The device is the source of truth.<br>The network is an optimisation.</div>
+    <div class="strip"></div>
+  </div>
+
+  <div class="cards">
+
+    <!-- 1 · PROBLEM -->
+    <div class="card pad" style="height:392px">
+      <div class="col-h"><span class="num">1</span><span class="h3">The problem, made precise</span></div>
+      <div class="p-item"><div class="ax">P1</div><div class="tx"><b>Availability.</b> Lessons, drafts, submissions, exams and co-editing must work with zero network — for days, across restarts, on low-end devices. Offline is partial, not a boolean.</div></div>
+      <div class="p-item"><div class="ax">P2</div><div class="tx"><b>Convergence.</b> N devices + server must agree on identical state in any arrival order. Wall-clock last-write-wins silently destroys valid work.</div></div>
+      <div class="p-item"><div class="ax">P3</div><div class="tx"><b>Exactly-once.</b> Transport can only promise at-least-once, so submissions need client idempotency keys and immutable server-side attempts.</div></div>
+      <div class="p-item"><div class="ax">P4</div><div class="tx"><b>Integrity without trust.</b> Offline exam logs must be verifiable without trusting the device clock — and never auto-fail a student.</div></div>
+    </div>
+
+    <!-- 2 · SOLUTION -->
+    <div class="card pad" style="height:392px">
+      <div class="col-h"><span class="num">2</span><span class="h3">The solution</span></div>
+      <div class="sol"><div class="ic" style="background:var(--teal-soft);color:var(--teal)">L1</div><div class="tx" style="font-size:12.5px;line-height:1.42;color:var(--ink2)"><b style="color:var(--navy)">Local write first.</b> Every action durably appends to a per-device op log and renders instantly; sync stays a background concern.</div></div>
+      <div class="sol"><div class="ic" style="background:var(--indigo-soft);color:var(--indigo)">L2</div><div class="tx" style="font-size:12.5px;line-height:1.42;color:var(--ink2)"><b style="color:var(--navy)">Two data classes.</b> Documents are Yjs CRDTs (lossless by construction); records are immutable server-validated facts (lossless by policy).</div></div>
+      <div class="sol"><div class="ic" style="background:var(--amber-soft);color:var(--amber)">L3</div><div class="tx" style="font-size:12.5px;line-height:1.42;color:var(--ink2)"><b style="color:var(--navy)">Merge ladder.</b> L0 identical → L1 CRDT → L2 field HLC → L3 domain policy → L4 Conflict Inbox. Never a silent overwrite.</div></div>
+      <div class="sol"><div class="ic" style="background:var(--green-soft);color:var(--green)">L4</div><div class="tx" style="font-size:12.5px;line-height:1.42;color:var(--ink2)"><b style="color:var(--navy)">Delta + resumable sync.</b> Batched push, state-vector pull, chunked uploads, jittered backoff, bounded queues, honest status UI.</div></div>
+      <div class="banner amber" style="margin-top:12px;font-size:11.6px;padding:8px 11px">
+        <span style="font-weight:800">Invariant</span>
+        <span style="font-weight:550">No acknowledged edit is ever destroyed without a human-visible record.</span>
+      </div>
+    </div>
+
+    <!-- 3 · ARCHITECTURE -->
+    <div class="card pad" style="height:392px">
+      <div class="col-h"><span class="num">3</span><span class="h3">Architecture in one glance</span></div>
+      <div class="arch-row"><div class="arch-label">Client</div><div style="flex:1;display:flex;gap:6px;flex-wrap:wrap">
+        <div class="arch-tier">React PWA</div><div class="arch-tier">SQLite-WASM / IndexedDB</div><div class="arch-tier">Yjs docs</div><div class="arch-tier">Sync engine</div><div class="arch-tier">Blob cache</div></div></div>
+      <div class="arch-row"><div class="arch-label">Edge</div><div style="flex:1;display:flex;gap:6px">
+        <div class="arch-tier">CDN / TLS</div><div class="arch-tier">API gateway</div><div class="arch-tier">JWT + device keys</div></div></div>
+      <div class="arch-row"><div class="arch-label">Services</div><div style="flex:1;display:flex;gap:6px;flex-wrap:wrap">
+        <div class="arch-tier svc">sync</div><div class="arch-tier svc">doc</div><div class="arch-tier svc">submission</div><div class="arch-tier svc">exam</div><div class="arch-tier svc">media</div></div></div>
+      <div class="arch-row"><div class="arch-label">Data</div><div style="flex:1;display:flex;gap:6px">
+        <div class="arch-tier">Postgres 16</div><div class="arch-tier">Redis 7</div><div class="arch-tier">BullMQ</div><div class="arch-tier">S3 / MinIO</div></div></div>
+      <div class="spine">
+        <div class="t">Reconciliation spine</div>
+        <div class="f">intent → durable op → instant UI → queue →<br>batched push → dedupe + HLC order → ack → delta pull →<br>merge → converge → audit</div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+        <span class="tiny" style="font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-right:3px">Device sync states</span>
+        <span class="pill amber" style="height:20px;font-size:10px;padding:0 7px">Offline · 12 queued</span>
+        <span class="pill grey" style="height:20px;font-size:10px;padding:0 7px">Connected</span>
+        <span class="pill indigo" style="height:20px;font-size:10px;padding:0 7px">Syncing 7/12</span>
+        <span class="pill green" style="height:20px;font-size:10px;padding:0 7px">Synced 2m ago</span>
+        <span class="pill red" style="height:20px;font-size:10px;padding:0 7px">Degraded · retry 8s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- proof row -->
+  <div class="proof">
+    <div class="proof-h">
+      <span class="h3" style="font-size:15px">Proof the demo must show</span>
+      <span class="small">Every claim above is backed by a runnable check — the rubric is explicit that claims without evidence earn nothing.</span>
+    </div>
+    <div class="proof-grid">
+      <div class="pf"><div class="w">25%</div><div class="c">Technical implementation</div><div class="e">Typed sync protocol, op-log dedupe index and reconciler visible in code; diagram matches deployment.</div></div>
+      <div class="pf"><div class="w">20%</div><div class="c">Problem-solving depth</div><div class="e">Twist demonstrated live: two offline co-editors converge; delta-sync volume shown, not asserted.</div></div>
+      <div class="pf"><div class="w">20%</div><div class="c">Reliability &amp; security</div><div class="e">5 submits → 1 attempt; network killed mid-upload → resumes; exam nonce replay rejected.</div></div>
+      <div class="pf"><div class="w">15%</div><div class="c">Innovation</div><div class="e">Merge ladder + immutable conflict ledger; “no silent loss” encoded as a testable invariant.</div></div>
+      <div class="pf"><div class="w">10%</div><div class="c">Usability &amp; accessibility</div><div class="e">Honest status pill, Sync Center, keyboard-navigable Conflict Inbox, 4.5:1 contrast, 320px layout.</div></div>
+      <div class="pf"><div class="w">10%</div><div class="c">Demo &amp; validation</div><div class="e">Convergence property tests over random op orders, chaos report, live metrics, stated limitations.</div></div>
+    </div>
+  </div>
+
+  <!-- twist -->
+  <div class="twist">
+    <div style="width:196px;flex:0 0 auto">
+      <div class="eyebrow" style="font-size:10px;margin-bottom:4px">Advanced twist</div>
+      <div style="font-size:12.4px;line-height:1.4;font-weight:650;color:var(--navy)">Two students edit one document offline.</div>
+    </div>
+    <div class="ladder">
+      <div style="text-align:center"><div class="lv a">L0 identical</div><div class="lt">no-op</div></div>
+      <div style="color:var(--muted2);font-size:12px">→</div>
+      <div style="text-align:center"><div class="lv a">L1 CRDT</div><div class="lt">text auto-merges</div></div>
+      <div style="color:var(--muted2);font-size:12px">→</div>
+      <div style="text-align:center"><div class="lv b">L2 fields</div><div class="lt">HLC per field</div></div>
+      <div style="color:var(--muted2);font-size:12px">→</div>
+      <div style="text-align:center"><div class="lv c">L3 policy</div><div class="lt">domain rule</div></div>
+      <div style="color:var(--muted2);font-size:12px">→</div>
+      <div style="text-align:center"><div class="lv d">L4 contested</div><div class="lt">freeze both</div></div>
+      <div style="color:var(--muted2);font-size:12px">→</div>
+      <div style="text-align:center"><div class="lv e">Conflict Inbox</div><div class="lt">human decides</div></div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div class="pill teal"><span class="dot"></span>Both versions retained</div>
+      <div class="small" style="margin-top:5px;font-size:11.3px">Convergence proven by property tests on random op orders.</div>
+    </div>
+  </div>
+
+  <div class="footline">
+    <div class="stack"><b>Stack</b> &nbsp;React · TypeScript · Yjs · SQLite-WASM/IndexedDB · Node 20 · Fastify · PostgreSQL 16 · Redis 7 · BullMQ · WebSockets · MinIO · Docker</div>
+    <div class="inv"><span class="dot"></span>Every write idempotent · every merge lossless · every decision audited</div>
+  </div>
+</div>
+</body>
+</html>

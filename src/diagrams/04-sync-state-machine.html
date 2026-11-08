@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — 04 Sync state machine</title>
+<link rel="stylesheet" href="../../assets/design.css">
+<style>
+  .canvas{width:2200px;height:1300px}
+  .state{position:absolute;width:210px;height:144px;background:#fff;border:1px solid var(--line);border-radius:14px;
+         box-shadow:0 6px 20px rgba(16,24,40,.08),0 1px 3px rgba(16,24,40,.05);padding:13px 14px;overflow:hidden}
+  .stbar{position:absolute;left:0;right:0;top:0;height:4px}
+  .stname{font-size:15.5px;font-weight:800;letter-spacing:.05em;color:var(--navy)}
+  .stsub{font-size:9.5px;line-height:1.35;color:var(--muted);margin-top:3px}
+  .tchip{position:absolute;width:150px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:8px;
+         box-shadow:var(--sh-1);padding:4px 6px;font-size:9.9px;font-weight:750;color:var(--ink2);line-height:1.2}
+  .tchip span{display:block;font-size:8.6px;font-weight:500;color:var(--muted);margin-top:1px}
+  .tchip.teal{border-color:var(--teal-line);color:var(--teal)}
+  .tchip.teal span{color:#0A5B4F}
+  .tchip.amber{border-color:var(--amber-line);color:var(--amber)}
+  .tchip.amber span{color:#7A3E06}
+  .tchip.red{border-color:var(--red-line);color:var(--red)}
+  .tchip.red span{color:#7A271A}
+  .tchip.indigo{border-color:var(--indigo-line);color:var(--indigo)}
+  .tchip.indigo span{color:#26337A}
+  .rail{position:absolute;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-1);padding:16px 18px}
+  .rail .rt{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+  .rail .rh{font-size:15.5px;font-weight:800;color:var(--navy);letter-spacing:-.012em;margin-top:3px}
+  .srow{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--line2)}
+  .srow:last-child{border-bottom:none}
+  .snm{width:74px;font-family:var(--mono);font-size:9.4px;font-weight:800;color:var(--muted);flex:0 0 auto}
+  .str{font-family:var(--mono);font-size:10.6px;font-weight:700;color:var(--ink);flex:0 0 auto}
+  .smean{font-size:9.2px;color:var(--muted);line-height:1.3}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ================= HEADER ================= -->
+  <div style="position:absolute;left:60px;top:24px;width:1500px">
+    <div class="eyebrow">EduSync · device sync state machine</div>
+    <div class="h1" style="margin-top:6px;font-size:40px">Five states, honest status, bounded retries</div>
+    <div class="body" style="margin-top:9px;font-size:13.2px">
+      The sync engine is a state machine with one hard rule: an op leaves the queue only when it is <b>acked</b>.
+      Everything else — retries, backoff, degraded mode — is bounded, visible and never destructive.
+    </div>
+  </div>
+  <div style="position:absolute;left:1600px;top:40px;display:flex;gap:9px">
+    <div class="pill green" style="height:24px">✓ durable queue</div>
+    <div class="pill teal" style="height:24px">bounded backoff</div>
+  </div>
+
+  <!-- ================= STATE GRAPH ================= -->
+  <!-- OFFLINE -->
+  <div class="state" style="left:100px;top:270px;border-color:var(--amber-line)">
+    <div class="stbar" style="background:var(--amber)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="stname" style="color:var(--amber)">OFFLINE</div>
+      <span class="pill amber" style="height:18px;font-size:8.6px"><i class="dot"></i>no link</span>
+    </div>
+    <div class="stsub">no network · UI fully usable · ops accumulate in the durable queue</div>
+    <div class="pill amber" style="height:20px;font-size:9.4px;margin-top:7px"><i class="dot"></i>Offline · 12 queued</div>
+  </div>
+
+  <!-- CONNECTED -->
+  <div class="state" style="left:470px;top:270px;border-color:var(--indigo-line)">
+    <div class="stbar" style="background:var(--indigo)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="stname" style="color:var(--indigo)">CONNECTED</div>
+      <span class="pill indigo" style="height:18px;font-size:8.6px">probe ok</span>
+    </div>
+    <div class="stsub">a real request succeeded · auth valid · the queue has not drained yet</div>
+    <div class="pill indigo" style="height:20px;font-size:9.4px;margin-top:7px">Connected · 12 queued</div>
+  </div>
+
+  <!-- SYNCING -->
+  <div class="state" style="left:840px;top:270px;border-color:var(--teal-line)">
+    <div class="stbar" style="background:var(--teal)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="stname" style="color:var(--teal)">SYNCING</div>
+      <span class="pill teal" style="height:18px;font-size:8.6px">in flight</span>
+    </div>
+    <div class="stsub">push + pull in batches · progress is counted against the queue, not guessed</div>
+    <div class="pill teal" style="height:20px;font-size:9.4px;margin-top:7px">Syncing 7/12</div>
+  </div>
+
+  <!-- SYNCED -->
+  <div class="state" style="left:1210px;top:270px;border-color:var(--green-line)">
+    <div class="stbar" style="background:var(--green)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="stname" style="color:var(--green)">SYNCED</div>
+      <span class="pill green" style="height:18px;font-size:8.6px">converged</span>
+    </div>
+    <div class="stsub">every op acked · delta pulled and merged · state hash matches the server</div>
+    <div class="pill green" style="height:20px;font-size:9.4px;margin-top:7px">Synced · 2m ago</div>
+    <div class="pill amber" style="height:20px;font-size:9.4px;margin-top:5px">Needs review · 1 conflict</div>
+  </div>
+
+  <!-- DEGRADED -->
+  <div class="state" style="left:840px;top:620px;border-color:var(--red-line)">
+    <div class="stbar" style="background:var(--red)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="stname" style="color:var(--red)">DEGRADED</div>
+      <span class="pill red" style="height:18px;font-size:8.6px">retrying</span>
+    </div>
+    <div class="stsub">requests failing · ops stay queued · backoff timer running</div>
+    <div class="pill red" style="height:20px;font-size:9.4px;margin-top:7px">Degraded · retrying in 8s</div>
+  </div>
+
+  <!-- transition chips -->
+  <div class="tchip teal" style="left:315px;top:272px">probe ok<span>GET /health → 200</span></div>
+  <div class="tchip amber" style="left:315px;top:366px">probe fails<span>request decides, not onLine</span></div>
+  <div class="tchip teal" style="left:685px;top:272px">push accepted<span>pull-then-push starts</span></div>
+  <div class="tchip teal" style="left:1055px;top:272px">batch acked<span>queue 0 + delta merged</span></div>
+  <div class="tchip teal" style="left:1096px;top:186px">new local op<span>durable first, then drain</span></div>
+  <div class="tchip red" style="left:700px;top:452px">timeout / 5xx<span>N consecutive failures</span></div>
+  <div class="tchip amber" style="left:1006px;top:536px">retry after backoff<span>same op, idempotent</span></div>
+  <div class="tchip red" style="left:340px;top:648px">failed ≥ N times<span>treat as offline again</span></div>
+
+  <!-- queue annotation -->
+  <div style="position:absolute;left:330px;top:500px;width:470px;background:var(--bg2);border:1.5px dashed var(--teal-line);border-radius:14px;padding:13px 16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:9.6px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--teal)">The queue is the source of truth</div>
+      <span class="pill teal" style="height:19px;font-size:9px">durable</span>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:9px;margin-top:5px">
+      <span class="mono" style="font-size:24px;font-weight:800;color:var(--navy);line-height:1">12</span>
+      <span style="font-size:10px;color:var(--muted)">ops queued · <b style="color:var(--ink2)">5 acked</b> · oldest-first</span>
+    </div>
+    <div class="meter" style="margin-top:7px;height:6px"><span style="width:42%;background:var(--teal)"></span></div>
+    <div class="small" style="font-size:9.3px;margin-top:7px;line-height:1.35">It crosses every state untouched. Only an ack removes an op — not time, not a restart, not a retry.</div>
+  </div>
+
+  <!-- ================= TRANSITION TABLE ================= -->
+  <div style="position:absolute;left:60px;top:820px;width:1400px;height:430px;background:#fff;border:1px solid var(--line);
+              border-radius:16px;box-shadow:var(--sh-1);overflow:hidden">
+    <div style="display:flex;align-items:baseline;gap:12px;padding:14px 18px 10px">
+      <span style="font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)">Transition table</span>
+      <span style="font-size:13.5px;font-weight:800;color:var(--navy)">What actually fires each edge</span>
+    </div>
+    <table class="table" style="font-size:10.6px">
+      <thead><tr>
+        <th style="width:120px">From</th><th style="width:440px">Trigger</th><th style="width:120px">To</th><th>Guard / what the user sees</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><b>OFFLINE</b></td><td>probe succeeds: <span class="mono">GET /health</span> returns 200 with server time</td><td><b>CONNECTED</b></td><td>a real request decided it; <span class="mono">navigator.onLine</span> was only a hint</td></tr>
+        <tr><td><b>CONNECTED</b></td><td>the probe or any request fails</td><td><b>OFFLINE</b></td><td>onLine can still report true — the failed request wins</td></tr>
+        <tr><td><b>CONNECTED</b></td><td>pull-then-push starts; the batch is accepted by the gateway</td><td><b>SYNCING</b></td><td>pull first so pushes land on fresh state</td></tr>
+        <tr><td><b>SYNCING</b></td><td>every queued op is acked and the delta pull is merged</td><td><b>SYNCED</b></td><td>queue depth 0, state hash matches the server</td></tr>
+        <tr><td><b>SYNCED</b></td><td>a new local op is appended (any edit, anywhere)</td><td><b>SYNCING</b></td><td>durable first — the UI already moved before this transition</td></tr>
+        <tr><td><b>SYNCING</b></td><td>push timeout, 5xx, or N consecutive failures</td><td><b>DEGRADED</b></td><td>ops stay queued; the backoff timer starts</td></tr>
+        <tr><td><b>DEGRADED</b></td><td>backoff expires and the probe succeeds</td><td><b>SYNCING</b></td><td>resume from the same opId — idempotent by construction</td></tr>
+        <tr><td><b>DEGRADED</b></td><td>failures ≥ N (the device is genuinely offline)</td><td><b>OFFLINE</b></td><td>queue preserved; nothing is dropped or expired</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= RIGHT RAIL ================= -->
+  <div class="rail" style="left:1500px;top:150px;width:640px;height:370px">
+    <div class="rt">Honest status</div>
+    <div class="rh">The pill never lies</div>
+    <div class="small" style="font-size:9.9px;margin-top:4px">Every label names the state and the queue. No "sync error" dead ends, no fake spinners.</div>
+    <div style="margin-top:7px">
+      <div class="srow"><div class="snm">OFFLINE</div><div style="flex:1"><div class="pill amber" style="height:23px;font-size:10.8px"><i class="dot"></i>Offline · 12 queued</div><div class="smean" style="margin-top:2px">exactly the ops not yet acked</div></div></div>
+      <div class="srow"><div class="snm">SYNCING</div><div style="flex:1"><div class="pill teal" style="height:23px;font-size:10.8px"><i class="dot"></i>Syncing 7/12</div><div class="smean" style="margin-top:2px">acked / total in the current drain</div></div></div>
+      <div class="srow"><div class="snm">SYNCED</div><div style="flex:1"><div class="pill green" style="height:23px;font-size:10.8px"><i class="dot"></i>Synced · 2m ago</div><div class="smean" style="margin-top:2px">last full convergence, timestamped</div></div></div>
+      <div class="srow"><div class="snm">DEGRADED</div><div style="flex:1"><div class="pill red" style="height:23px;font-size:10.8px"><i class="dot"></i>Degraded · retrying in 8s</div><div class="smean" style="margin-top:2px">countdown to the next attempt</div></div></div>
+      <div class="srow" style="border-bottom:none"><div class="snm">SYNCED+</div><div style="flex:1"><div class="pill amber" style="height:23px;font-size:10.8px"><i class="dot"></i>Needs review · 1 conflict</div><div class="smean" style="margin-top:2px">nothing lost; a human decides</div></div></div>
+    </div>
+  </div>
+
+  <div class="rail" style="left:1500px;top:540px;width:640px;height:260px">
+    <div class="rt">Backoff</div>
+    <div class="rh">Bounded, jittered, capped</div>
+    <div style="margin-top:9px;background:var(--navy);border-radius:11px;padding:12px 14px">
+      <div class="mono" style="font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em">min(30 s, 500 ms · 2<sup style="font-size:11px">n</sup>) ± 25%</div>
+      <div style="font-size:9.2px;color:#9FB3C8;margin-top:4px">n = consecutive failures for this batch · jitter applied on every attempt</div>
+    </div>
+    <div style="display:flex;gap:5px;margin-top:11px">
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center"><div class="mono" style="font-size:8.6px;color:var(--muted)">n=0</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--ink)">0.5s</div></div>
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center"><div class="mono" style="font-size:8.6px;color:var(--muted)">n=1</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--ink)">1s</div></div>
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center"><div class="mono" style="font-size:8.6px;color:var(--muted)">n=2</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--ink)">2s</div></div>
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center"><div class="mono" style="font-size:8.6px;color:var(--muted)">n=3</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--ink)">4s</div></div>
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center"><div class="mono" style="font-size:8.6px;color:var(--muted)">n=4</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--ink)">8s</div></div>
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center"><div class="mono" style="font-size:8.6px;color:var(--muted)">n=5</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--ink)">16s</div></div>
+      <div class="panel" style="flex:1;padding:6px 4px;text-align:center;border-color:var(--teal-line);background:var(--teal-soft)"><div class="mono" style="font-size:8.6px;color:var(--teal)">n≥6</div><div class="mono" style="font-size:10.6px;font-weight:800;color:var(--teal)">30s</div></div>
+    </div>
+    <div class="small" style="font-size:9.3px;margin-top:10px;line-height:1.45">±25% jitter stops a lecture hall of 60 devices from stampeding the gateway the moment wifi returns. The 30 s cap means a flaky 2G link is never punished with a long sleep — and <span class="mono">n</span> resets on the first success.</div>
+  </div>
+
+  <div class="rail" style="left:1500px;top:820px;width:640px;height:300px;background:var(--navy);border-color:var(--navy)">
+    <div class="rt" style="color:#8FD1C6">The invariant</div>
+    <div class="rh" style="color:#fff;font-size:19px">Never drops un-acked ops</div>
+    <div style="font-size:10.3px;line-height:1.5;color:#9FB3C8;margin-top:8px">The queue is the contract between the student and the platform. It is emptied only one way: an ack.</div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px"><span style="color:#8FD1C6;font-weight:800">✓</span><div style="font-size:10px;color:#D5E6E2;line-height:1.4">Durable in SQLite-WASM / OPFS — survives tab close, crash and reboot.</div></div>
+      <div style="display:flex;gap:8px"><span style="color:#8FD1C6;font-weight:800">✓</span><div style="font-size:10px;color:#D5E6E2;line-height:1.4">Ack is the only removal path; rejected ops are surfaced, never deleted.</div></div>
+      <div style="display:flex;gap:8px"><span style="color:#8FD1C6;font-weight:800">✓</span><div style="font-size:10px;color:#D5E6E2;line-height:1.4">Overflow is handled by back-pressure (pause syncing), not by dropping.</div></div>
+      <div style="display:flex;gap:8px"><span style="color:#8FD1C6;font-weight:800">✓</span><div style="font-size:10px;color:#D5E6E2;line-height:1.4">No timer or eviction policy can expire an op — only an ack can.</div></div>
+      <div style="display:flex;gap:8px"><span style="color:#8FD1C6;font-weight:800">✓</span><div style="font-size:10px;color:#D5E6E2;line-height:1.4">Only <i>superseded drafts</i> may be coalesced — never submitted work.</div></div>
+    </div>
+    <div style="margin-top:10px;border-top:1px solid rgba(143,209,198,.22);padding-top:8px;font-size:9.3px;color:#7E93A8">
+      Kill the network mid-batch, kill the app, reopen it: the same 12 ops are still queued and the demo still converges.
+    </div>
+  </div>
+
+  <div class="rail" style="left:1500px;top:1140px;width:640px;height:110px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="rt">State colours</div>
+      <div class="small" style="font-size:9px">the same palette in the Sync Center</div>
+    </div>
+    <div style="display:flex;gap:5px;margin-top:8px">
+      <div style="flex:1;background:var(--amber-soft);border:1px solid var(--amber-line);border-radius:9px;padding:6px 7px"><div class="mono" style="font-size:9.2px;font-weight:800;color:var(--amber)">OFFLINE</div><div style="font-size:8.6px;color:#7A3E06;line-height:1.25;margin-top:2px">queue grows</div></div>
+      <div style="flex:1;background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:9px;padding:6px 7px"><div class="mono" style="font-size:9.2px;font-weight:800;color:var(--indigo)">CONNECTED</div><div style="font-size:8.6px;color:#26337A;line-height:1.25;margin-top:2px">probing</div></div>
+      <div style="flex:1;background:var(--teal-soft);border:1px solid var(--teal-line);border-radius:9px;padding:6px 7px"><div class="mono" style="font-size:9.2px;font-weight:800;color:var(--teal)">SYNCING</div><div style="font-size:8.6px;color:#0A5B4F;line-height:1.25;margin-top:2px">draining</div></div>
+      <div style="flex:1;background:var(--green-soft);border:1px solid var(--green-line);border-radius:9px;padding:6px 7px"><div class="mono" style="font-size:9.2px;font-weight:800;color:var(--green)">SYNCED</div><div style="font-size:8.6px;color:#065F3B;line-height:1.25;margin-top:2px">queue empty</div></div>
+      <div style="flex:1;background:var(--red-soft);border:1px solid var(--red-line);border-radius:9px;padding:6px 7px"><div class="mono" style="font-size:9.2px;font-weight:800;color:var(--red)">DEGRADED</div><div style="font-size:8.6px;color:#7A271A;line-height:1.25;margin-top:2px">backing off</div></div>
+    </div>
+  </div>
+
+  <!-- ================= ARROWS ================= -->
+  <svg class="arrow-layer" viewBox="0 0 2200 1300" width="2200" height="1300">
+    <defs>
+      <marker id="a-teal" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 Z" fill="#0E7C6B"/></marker>
+      <marker id="a-amber" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 Z" fill="#B45309"/></marker>
+      <marker id="a-red" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 Z" fill="#B42318"/></marker>
+      <marker id="a-indigo" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 Z" fill="#3E63DD"/></marker>
+    </defs>
+
+    <!-- OFFLINE -> CONNECTED -->
+    <line x1="310" y1="318" x2="462" y2="318" stroke="#3E63DD" stroke-width="2.4" marker-end="url(#a-indigo)"/>
+    <!-- CONNECTED -> OFFLINE -->
+    <line x1="470" y1="360" x2="318" y2="360" stroke="#B45309" stroke-width="2.2" marker-end="url(#a-amber)"/>
+    <!-- CONNECTED -> SYNCING -->
+    <line x1="680" y1="318" x2="832" y2="318" stroke="#0E7C6B" stroke-width="2.4" marker-end="url(#a-teal)"/>
+    <!-- SYNCING -> SYNCED -->
+    <line x1="1050" y1="318" x2="1202" y2="318" stroke="#0E7C6B" stroke-width="2.4" marker-end="url(#a-teal)"/>
+    <!-- SYNCED -> SYNCING (return, above) -->
+    <path d="M1315 270 L1315 210 L945 210 L945 266" stroke="#0E7C6B" stroke-width="2.2" fill="none" marker-end="url(#a-teal)"/>
+    <!-- SYNCING -> DEGRADED (down) -->
+    <line x1="905" y1="414" x2="905" y2="614" stroke="#B42318" stroke-width="2.3" marker-end="url(#a-red)"/>
+    <!-- DEGRADED -> SYNCING (up) -->
+    <line x1="985" y1="620" x2="985" y2="420" stroke="#B45309" stroke-width="2.3" marker-end="url(#a-amber)"/>
+    <!-- DEGRADED -> OFFLINE (routed left then up) -->
+    <path d="M840 685 L215 685 L215 420" stroke="#B42318" stroke-width="2.2" fill="none" marker-end="url(#a-red)"/>
+  </svg>
+</div>
+</body>
+</html>

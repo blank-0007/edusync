@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — Lesson library</title>
+<link rel="stylesheet" href="../../assets/design.css">
+<link rel="stylesheet" href="_ui.css">
+<script src="_measure.js" defer></script>
+</head>
+<body>
+<div class="canvas stage w1600">
+  <div class="app shell">
+
+    <!-- ===== browser chrome ===== -->
+    <div class="app-bar">
+      <div class="win-dots"><i></i><i></i><i></i></div>
+      <div class="urlbar"><svg class="ic sm"><use href="#i-lock"/></svg>edusync.app/courses/biol-201/lessons<span class="end tag">offline copy</span></div>
+      <div class="pill amber"><svg class="ic"><use href="#i-wifi-off"/></svg>Offline · 12 changes queued</div>
+      <div class="iconbtn"><svg class="ic"><use href="#i-settings"/></svg></div>
+      <div class="avatar sm av-blue">AM</div>
+    </div>
+
+    <!-- ===== sidebar ===== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">E</div>
+        <div><div class="brand-name">EduSync</div><div class="brand-sub">Offline-first learning</div></div>
+      </div>
+      <div class="nav-group">Learning</div>
+      <div class="nav-item"><svg class="ic"><use href="#i-book"/></svg>Courses</div>
+      <div class="nav-item active"><svg class="ic"><use href="#i-play"/></svg>Lessons<span class="nav-badge">14</span></div>
+      <div class="nav-item"><svg class="ic"><use href="#i-edit"/></svg>Assignments<span class="nav-badge amber">2</span></div>
+      <div class="nav-item"><svg class="ic"><use href="#i-shield"/></svg>Exams</div>
+      <div class="nav-group">Sync &amp; review</div>
+      <div class="nav-item"><svg class="ic"><use href="#i-sync"/></svg>Sync Center<span class="nav-badge amber">12</span></div>
+      <div class="nav-item"><svg class="ic"><use href="#i-inbox"/></svg>Review Inbox<span class="nav-badge red">2</span></div>
+      <div class="side-foot">
+        <div class="mini-card">
+          <div class="row"><span class="hdot"></span><div class="mc-title">BIOL 201 · Cell Biology</div></div>
+          <div class="small" style="font-size:9.8px;margin-top:3px">Section A · Dr. Priya Nair</div>
+          <div class="row" style="margin-top:7px;gap:5px"><span class="pill teal xs"><span class="dot"></span>Ready offline</span></div>
+          <div class="meter" style="margin-top:8px;height:4px"><span style="width:52%"></span></div>
+          <div class="small" style="font-size:9.4px;margin-top:4px">412 MB of 800 MB cached</div>
+        </div>
+        <div class="profile">
+          <div class="avatar av-blue">AM</div>
+          <div class="grow"><div class="pn">Aarav Menon</div><div class="pr">Student · 2024 batch</div></div>
+          <svg class="ic sm" style="color:var(--muted2)"><use href="#i-more"/></svg>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== main ===== -->
+    <main class="main col">
+      <div class="ph">
+        <div>
+          <div class="crumb">BIOL 201 · Cell Biology <span class="mut2">/</span> Lessons</div>
+          <div class="title">Lesson library</div>
+        </div>
+        <div class="grow"></div>
+        <div class="input" style="width:206px"><svg class="ic sm"><use href="#i-search"/></svg>Search 14 lessons</div>
+        <button class="btn"><svg class="ic sm"><use href="#i-download"/></svg>Prefetch course</button>
+        <button class="btn primary">Sync Center<svg class="ic sm"><use href="#i-arrow-right"/></svg></button>
+      </div>
+
+      <div class="body cols2">
+        <!-- left column -->
+        <div class="colstack">
+
+          <div class="banner teal">
+            <svg class="ic"><use href="#i-download"/></svg>
+            <div class="grow">This course is fully available offline — <b>14 lessons</b>, 3.2 h of media and the <b>Exam 2 package</b> were sealed at 13:51.</div>
+            <span class="pill teal"><span class="dot"></span>Offline ready</span>
+          </div>
+
+          <div class="hero">
+            <div class="hero-thumb"><div class="play"><svg class="ic" style="width:16px;height:16px"><use href="#i-play"/></svg></div></div>
+            <div class="grow">
+              <div class="h-eyebrow">Continue learning</div>
+              <div class="h-title">Membrane transport: active vs passive</div>
+              <div class="h-sub">Lesson 7 · Video 12 min · Notes 4 pages</div>
+              <div class="h-meta">
+                <span class="row" style="gap:5px"><svg class="ic"><use href="#i-clock"/></svg>12 min left</span>
+                <span class="row" style="gap:5px"><svg class="ic"><use href="#i-play"/></svg>Resume at 06:41</span>
+                <span class="row" style="gap:5px"><svg class="ic"><use href="#i-download"/></svg>Prefetched 13:51</span>
+              </div>
+            </div>
+            <div style="width:176px;flex:0 0 auto">
+              <div class="row" style="justify-content:space-between;font-size:10px;color:#9FB3C8;margin-bottom:5px"><span>Lesson progress</span><span style="color:#fff;font-weight:700">62%</span></div>
+              <div class="meter"><span style="width:62%"></span></div>
+              <button class="btn" style="width:100%;margin-top:11px;background:#fff;border-color:#fff;color:var(--navy)">Resume<svg class="ic sm"><use href="#i-arrow-right"/></svg></button>
+            </div>
+          </div>
+
+          <div class="row" style="min-height:22px">
+            <div class="h3" style="font-size:14px">Lessons</div>
+            <span class="pill grey sm">14</span>
+            <div class="grow"></div>
+            <div class="row" style="gap:5px;font-size:10.5px;color:var(--muted)"><svg class="ic sm"><use href="#i-check"/></svg>All 14 available offline</div>
+          </div>
+
+          <div class="lessons">
+            <div class="lesson">
+              <div class="lesson-top">
+                <div class="lesson-thumb"><svg class="ic"><use href="#i-play"/></svg></div>
+                <div class="grow">
+                  <div class="lesson-title">Osmosis and tonicity</div>
+                  <div class="lesson-sub">Lesson 4 · Video 9 min · Quiz 2</div>
+                </div>
+                <svg class="ic" style="color:var(--green);margin-top:2px"><use href="#i-check"/></svg>
+              </div>
+              <div class="meter"><span style="width:100%"></span></div>
+              <div class="lesson-foot">
+                <span class="pill teal sm"><span class="dot"></span>Available offline</span>
+                <span class="end small" style="font-size:9.8px">9 min</span>
+              </div>
+            </div>
+
+            <div class="lesson">
+              <div class="lesson-top">
+                <div class="lesson-thumb"><svg class="ic"><use href="#i-play"/></svg></div>
+                <div class="grow">
+                  <div class="lesson-title">Facilitated diffusion: GLUT transporters</div>
+                  <div class="lesson-sub">Lesson 5 · Video 11 min · Notes</div>
+                </div>
+                <span class="tag">40%</span>
+              </div>
+              <div class="meter"><span style="width:40%"></span></div>
+              <div class="lesson-foot">
+                <span class="pill teal sm"><span class="dot"></span>Available offline</span>
+                <span class="end small" style="font-size:9.8px">11 min</span>
+              </div>
+            </div>
+
+            <div class="lesson">
+              <div class="lesson-top">
+                <div class="lesson-thumb"><svg class="ic"><use href="#i-play"/></svg></div>
+                <div class="grow">
+                  <div class="lesson-title">Ion pumps and the Na⁺/K⁺ ATPase</div>
+                  <div class="lesson-sub">Lesson 6 · Video 14 min · Diagram</div>
+                </div>
+                <span class="tag">New</span>
+              </div>
+              <div class="meter"><span style="width:0%"></span></div>
+              <div class="lesson-foot">
+                <span class="pill teal sm"><span class="dot"></span>Available offline</span>
+                <span class="end small" style="font-size:9.8px">14 min</span>
+              </div>
+            </div>
+
+            <div class="lesson">
+              <div class="lesson-top">
+                <div class="lesson-thumb indigo"><svg class="ic"><use href="#i-file"/></svg></div>
+                <div class="grow">
+                  <div class="lesson-title">Lab 3 prep: cell fractionation</div>
+                  <div class="lesson-sub">Lesson 8 · PDF 6 pp · Rubric</div>
+                </div>
+              </div>
+              <div class="meter"><span style="width:0%"></span></div>
+              <div class="lesson-foot">
+                <span class="pill teal sm"><span class="dot"></span>Available offline</span>
+                <span class="end small" style="font-size:9.8px">7 min</span>
+              </div>
+            </div>
+
+            <div class="lesson">
+              <div class="lesson-top">
+                <div class="lesson-thumb amber"><svg class="ic"><use href="#i-edit"/></svg></div>
+                <div class="grow">
+                  <div class="lesson-title">Membrane transport problem set</div>
+                  <div class="lesson-sub">Problem set 2 · 12 questions · 25 min</div>
+                </div>
+                <svg class="ic" style="color:var(--amber);margin-top:2px"><use href="#i-clock"/></svg>
+              </div>
+              <div class="meter"><span style="width:0%"></span></div>
+              <div class="lesson-foot">
+                <span class="pill teal sm"><span class="dot"></span>Available offline</span>
+                <span class="end small" style="font-size:9.8px">25 min</span>
+              </div>
+            </div>
+
+            <div class="lesson">
+              <div class="lesson-top">
+                <div class="lesson-thumb indigo"><svg class="ic"><use href="#i-book"/></svg></div>
+                <div class="grow">
+                  <div class="lesson-title">Reading: Alberts Ch. 11, pp. 597–642</div>
+                  <div class="lesson-sub">Reading · PDF 46 pp · 3 figures</div>
+                </div>
+              </div>
+              <div class="meter"><span style="width:0%"></span></div>
+              <div class="lesson-foot">
+                <span class="pill teal sm"><span class="dot"></span>Available offline</span>
+                <span class="end small" style="font-size:9.8px">18 pp</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden">
+            <div class="card-h">
+              <div class="ch-title">Due this week</div>
+              <span class="pill amber sm"><span class="dot"></span>2 items</span>
+              <div class="grow"></div>
+              <span class="small" style="font-size:10px">Wk 5 · 10–16 Nov</span>
+            </div>
+            <div class="card-b" style="padding:2px 15px 0">
+              <div style="padding:10px 0;border-bottom:1px solid var(--line2)">
+                <div class="row">
+                  <div class="lesson-thumb" style="width:30px;height:30px;border-radius:8px"><svg class="ic sm"><use href="#i-edit"/></svg></div>
+                  <div class="grow">
+                    <div style="font-size:11.9px;font-weight:700;color:var(--navy)">Assignment 3 · Membrane transport worksheet</div>
+                    <div class="small" style="font-size:10px">Due Fri 14 Nov · 23:59 · 14 pts · draft saved on this device</div>
+                  </div>
+                  <span class="pill amber sm">Draft 64%</span>
+                  <button class="btn sm" style="margin-left:4px">Continue<svg class="ic sm"><use href="#i-arrow-right"/></svg></button>
+                </div>
+                <div class="row" style="gap:8px;margin-top:8px">
+                  <div class="meter" style="height:4px"><span style="width:64%"></span></div>
+                  <span class="small num" style="font-size:9.4px;white-space:nowrap">9 of 14 marks covered</span>
+                </div>
+              </div>
+              <div style="padding:10px 0">
+                <div class="row">
+                  <div class="lesson-thumb amber" style="width:30px;height:30px;border-radius:8px"><svg class="ic sm"><use href="#i-shield"/></svg></div>
+                  <div class="grow">
+                    <div style="font-size:11.9px;font-weight:700;color:var(--navy)">Quiz 2 · Osmosis &amp; tonicity</div>
+                    <div class="small" style="font-size:10px">Due Mon 17 Nov · 09:00 · 10 pts · 10 questions · 25 min</div>
+                  </div>
+                  <span class="pill grey sm">Not started</span>
+                  <button class="btn sm" style="margin-left:4px">Start<svg class="ic sm"><use href="#i-arrow-right"/></svg></button>
+                </div>
+                <div class="row" style="gap:8px;margin-top:8px">
+                  <div class="meter" style="height:4px"><span style="width:0%"></span></div>
+                  <span class="small" style="font-size:9.4px;white-space:nowrap">Answers autosave offline</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- right rail -->
+        <div class="rail">
+          <div class="card">
+            <div class="card-h"><div class="ch-title">Device storage</div><div class="grow"></div><span class="pill grey sm">52% used</span></div>
+            <div class="card-b">
+              <div class="row" style="align-items:baseline;gap:5px">
+                <div style="font-size:23px;font-weight:780;color:var(--navy);letter-spacing:-.03em;font-variant-numeric:tabular-nums">412 <span style="font-size:12px;font-weight:650">MB</span></div>
+                <div class="small" style="font-size:10.5px">of 800 MB · media cached</div>
+              </div>
+              <div class="meter stack" style="margin-top:9px;height:8px">
+                <span style="width:33.5%;background:var(--teal)"></span>
+                <span style="width:9.25%;background:var(--indigo)"></span>
+                <span style="width:3.6%;background:var(--muted2)"></span>
+                <span style="width:5.1%;background:var(--amber)"></span>
+              </div>
+              <div class="legend" style="margin-top:8px;flex-wrap:wrap;row-gap:4px">
+                <span class="k"><i class="sw"></i>Media 268</span>
+                <span class="k"><i class="sw indigo"></i>PDFs 74</span>
+                <span class="k"><i class="sw muted"></i>Exam 29</span>
+                <span class="k"><i class="sw amber"></i>Ops 41</span>
+              </div>
+              <div class="divider" style="margin:7px 0"></div>
+              <div class="krow"><span class="k">Protected op log &amp; drafts</span><span class="v">41 MB</span></div>
+              <div class="krow"><span class="k">Sealed exam package</span><span class="v">29 MB</span></div>
+              <div class="banner amber" style="margin-top:9px;padding:7px 9px;font-size:9.8px;font-weight:600;gap:7px">
+                <svg class="ic sm"><use href="#i-alert"/></svg>
+                <span>Media can be re-fetched. Queued ops are <b>never</b> evicted.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="ch-title">Sync</div><div class="grow"></div><span class="pill amber sm"><span class="dot"></span>12 queued</span></div>
+            <div class="card-b" style="padding-top:5px;padding-bottom:8px">
+              <div class="krow"><span class="k"><svg class="ic sm"><use href="#i-check"/></svg>Last successful push</span><span class="v num">14:02 · 4 min ago</span></div>
+              <div class="krow"><span class="k"><svg class="ic sm"><use href="#i-clock"/></svg>Next retry</span><span class="v amber num">in 8s · attempt 3</span></div>
+              <div class="krow"><span class="k"><svg class="ic sm"><use href="#i-upload"/></svg>Pending upload</span><span class="v num">12 ops · 46 KB</span></div>
+              <button class="btn" style="width:100%;margin-top:7px">Open Sync Center<svg class="ic sm"><use href="#i-arrow-right"/></svg></button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="ch-title">Offline readiness</div><div class="grow"></div><span class="pill teal sm"><span class="dot"></span>Ready</span></div>
+            <div class="card-b" style="padding-top:5px;padding-bottom:8px">
+              <div class="krow" style="padding:4px 0"><span class="k"><svg class="ic sm green"><use href="#i-check"/></svg>14 lessons cached</span><span class="v small" style="font-weight:500;font-size:10px">3.2 h</span></div>
+              <div class="krow" style="padding:4px 0"><span class="k"><svg class="ic sm green"><use href="#i-check"/></svg>Rubrics &amp; past papers</span><span class="v small" style="font-weight:500;font-size:10px">6 files</span></div>
+              <div class="krow" style="padding:4px 0"><span class="k"><svg class="ic sm green"><use href="#i-check"/></svg>Exam 2 package sealed</span><span class="v small" style="font-weight:500;font-size:10px">29 MB</span></div>
+              <div class="krow" style="padding:4px 0"><span class="k"><svg class="ic sm amber"><use href="#i-clock"/></svg>Assignment 4 rubric</span><span class="v amber" style="font-size:10px">next connect</span></div>
+              <div class="small" style="font-size:9.4px;margin-top:2px">verified 13:51 · this device signed</div>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1 1 auto;min-height:0;overflow:hidden">
+            <div class="card-h"><div class="ch-title">This week</div><div class="grow"></div><span class="pill grey sm">Wk 5</span></div>
+            <div class="card-b">
+              <div class="row" style="justify-content:space-between;font-size:10.8px"><span class="muted">Lessons completed</span><span class="strong num">4 of 6</span></div>
+              <div class="meter" style="margin-top:6px;height:6px"><span style="width:67%"></span></div>
+              <div class="row" style="margin-top:10px;gap:8px">
+                <div class="avatar sm av-teal" style="border-radius:7px">6</div>
+                <div><div style="font-size:10.8px;font-weight:700;color:var(--navy)">6-day study streak</div><div class="small" style="font-size:9.6px">2 h 40 m this week</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h13v-2"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.4l5.6 3.6L10 15.6z"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.2c0 4.6-3.1 7.7-7.5 9.3-4.4-1.6-7.5-4.7-7.5-9.3V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+<symbol id="i-sync" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M21 3v5h-5"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13l1.5 8v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M2.5 8.8a16 16 0 0 1 4.5-2.6"/><path d="M17 6.2a16 16 0 0 1 4.5 2.6"/><path d="M5.5 12.4a11 11 0 0 1 3.5-2"/><path d="M15 10.4a11 11 0 0 1 3.5 2"/><path d="M8.7 16a5.5 5.5 0 0 1 6.6 0"/><path d="M12 19.4h.01"/><path d="M3 3l18 18"/></symbol>
+<symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.8a16 16 0 0 1 20 0"/><path d="M5.4 12.4a11 11 0 0 1 13.2 0"/><path d="M8.7 16a5.5 5.5 0 0 1 6.6 0"/><path d="M12 19.4h.01"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 1.9"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L20 7"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M4 19h16"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5"/><path d="M7.5 9.5L12 5l4.5 4.5"/><path d="M4 19h16"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M13 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z"/><path d="M13 3v6h6"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2.8 12h2.4M18.8 12h2.4M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 9v5"/><path d="M12 17.2h.01"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 14.5A5.5 5.5 0 0 1 21 20"/></symbol>
+<symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.8"/><path d="M2 19h20"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4.5h11l-2 4 2 4H5"/></symbol>
+<symbol id="i-grad" viewBox="0 0 24 24"><path d="M2.5 8.5 12 4l9.5 4.5L12 13z"/><path d="M6 10.5V15c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/><path d="M21.5 8.5v6"/></symbol>
+</defs></svg>
+</body>
+</html>

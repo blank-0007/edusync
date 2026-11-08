@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — 03 Conflict ladder</title>
+<link rel="stylesheet" href="../../assets/design.css">
+<style>
+  .canvas{width:2400px;height:1350px}
+  .lcard{position:absolute;background:#fff;border:1px solid var(--line);border-radius:16px;
+         box-shadow:0 6px 20px rgba(16,24,40,.07),0 1px 3px rgba(16,24,40,.05);padding:16px 16px 0;overflow:hidden}
+  .lbar{position:absolute;left:0;right:0;top:0;height:4px}
+  .lvl{display:inline-flex;align-items:center;justify-content:center;height:26px;padding:0 10px;border-radius:8px;
+       font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.02em}
+  .ltag{font-size:8.6px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;padding:4px 7px;border-radius:6px}
+  .lct{font-size:14.6px;font-weight:800;color:var(--navy);letter-spacing:-.012em;margin-top:9px;line-height:1.2}
+  .crow{margin-top:8px}
+  .cl{font-size:8.8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);display:block;margin-bottom:1px}
+  .cv{font-size:10.25px;line-height:1.38;color:var(--ink2);display:block}
+  .loss{position:absolute;left:0;right:0;bottom:0;height:31px;display:flex;align-items:center;gap:6px;padding:0 16px;
+        font-size:9.5px;color:#065F3B;background:var(--green-soft);border-top:1px solid var(--green-line);font-weight:600}
+  .loss b{font-weight:800}
+  .case{position:absolute;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-1);padding:14px 16px;overflow:hidden}
+  .code{font-family:var(--mono);font-size:9.15px;line-height:1.62;color:var(--ink2);white-space:pre;margin-top:8px;
+        background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px}
+  .code b{color:var(--navy)}
+  .code .g{color:var(--green);font-weight:700}
+  .code .a{color:var(--amber);font-weight:700}
+  .tbar{display:flex;gap:4px;margin-top:9px}
+  .tseg{flex:1;background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:4px 5px;text-align:center}
+  .tseg b{display:block;font-family:var(--mono);font-size:8.8px;font-weight:800;color:var(--muted2);letter-spacing:.02em}
+  .tseg span{display:block;font-size:8.3px;line-height:1.2;color:var(--muted);margin-top:1px}
+  .tseg.hit b{color:#fff}
+  .tseg.hit span{font-weight:700}
+  .tseg.dim{opacity:.5}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ================= HEADER ================= -->
+  <div style="position:absolute;left:60px;top:26px;width:1600px">
+    <div class="eyebrow">EduSync · conflict model</div>
+    <div class="h1" style="margin-top:6px;font-size:42px">The merge ladder: five levels, zero silent loss</div>
+    <div class="body" style="margin-top:10px;font-size:13.6px">
+      Auto-merge when a rule can decide; freeze and escalate when it cannot. No level is permitted to discard a version —
+      L4 exists to prove that "resolved" never means "one side was thrown away".
+    </div>
+  </div>
+  <div style="position:absolute;left:1720px;top:44px;display:flex;gap:9px">
+    <div class="pill green" style="height:24px">✓ lossless at every level</div>
+    <div class="pill amber" style="height:24px">L4 = no silent loss</div>
+  </div>
+
+  <!-- ================= AXIS ================= -->
+  <div style="position:absolute;left:60px;top:168px;font-size:9.8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--teal)">Automatic · deterministic · no human needed</div>
+  <div style="position:absolute;left:1520px;top:168px;width:200px;text-align:right;font-size:9.8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--amber)">Needs a human</div>
+  <div style="position:absolute;left:60px;top:190px;width:1660px;height:3px;border-radius:2px;
+              background:linear-gradient(90deg,#0E7C6B 0%,#0E7C6B 81.9%,#F0C38A 81.9%,#B45309 100%)"></div>
+
+  <!-- ================= LADDER CARDS ================= -->
+  <!-- L0 -->
+  <div class="lcard" style="left:60px;top:510px;width:300px;height:278px">
+    <div class="lbar" style="background:#98A2B3"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="lvl" style="background:var(--bg3);color:var(--ink2)">L0</span>
+      <span class="ltag" style="background:var(--bg3);color:var(--muted)">identical</span>
+    </div>
+    <div class="lct">Same value, twice</div>
+    <div class="crow"><span class="cl">When</span><span class="cv">both sides write the same value — or the same opId arrives twice</span></div>
+    <div class="crow"><span class="cl">Merge</span><span class="cv">no-op · dedupe by <span class="mono">op_id</span>, nothing to reconcile</span></div>
+    <div class="crow"><span class="cl">Result</span><span class="cv">one value, unchanged</span></div>
+    <div class="loss"><b>Loss risk · none</b> — there was nothing in conflict</div>
+  </div>
+
+  <!-- L1 -->
+  <div class="lcard" style="left:400px;top:445px;width:300px;height:278px">
+    <div class="lbar" style="background:var(--teal)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="lvl" style="background:var(--teal-soft);color:var(--teal)">L1</span>
+      <span class="ltag" style="background:var(--teal-soft);color:var(--teal)">CRDT</span>
+    </div>
+    <div class="lct">Collaborative text &amp; lists</div>
+    <div class="crow"><span class="cl">When</span><span class="cv">two Yjs peers edited the same document offline</span></div>
+    <div class="crow"><span class="cl">Merge</span><span class="cv">Yjs CRDT — commutative, idempotent, arrival-order free</span></div>
+    <div class="crow"><span class="cl">Result</span><span class="cv">both update runs applied · interleaving preserved</span></div>
+    <div class="loss"><b>Loss risk · none</b> — no keystroke can be dropped</div>
+  </div>
+
+  <!-- L2 -->
+  <div class="lcard" style="left:740px;top:380px;width:300px;height:278px">
+    <div class="lbar" style="background:var(--indigo)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="lvl" style="background:var(--indigo-soft);color:var(--indigo)">L2</span>
+      <span class="ltag" style="background:var(--indigo-soft);color:var(--indigo)">per-field HLC</span>
+    </div>
+    <div class="lct">Independent fields of one record</div>
+    <div class="crow"><span class="cl">When</span><span class="cv">A edited the title, B edited the body of the same record</span></div>
+    <div class="crow"><span class="cl">Merge</span><span class="cv">per-field HLC last-writer + <span class="mono">deviceId</span> tiebreak</span></div>
+    <div class="crow"><span class="cl">Result</span><span class="cv">changed fields merge · only a contested field escalates</span></div>
+    <div class="loss"><b>Loss risk · none</b> — both prior values stay in history</div>
+  </div>
+
+  <!-- L3 -->
+  <div class="lcard" style="left:1080px;top:315px;width:300px;height:278px">
+    <div class="lbar" style="background:var(--navy2)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="lvl" style="background:var(--navy);color:#fff">L3</span>
+      <span class="ltag" style="background:var(--bg3);color:var(--navy2)">domain policy</span>
+    </div>
+    <div class="lct">Grades, deadlines, enrolment</div>
+    <div class="crow"><span class="cl">When</span><span class="cv">the system has an explicit rule for this field</span></div>
+    <div class="crow"><span class="cl">Merge</span><span class="cv">policy: instructor wins grades · server clock on deadlines · server wins enrolment</span></div>
+    <div class="crow"><span class="cl">Result</span><span class="cv">decision recorded with actor + rule id</span></div>
+    <div class="loss"><b>Loss risk · none</b> — policy is explicit and auditable</div>
+  </div>
+
+  <!-- L4 -->
+  <div class="lcard" style="left:1420px;top:250px;width:300px;height:278px;border-color:var(--amber-line);background:var(--amber-soft)">
+    <div class="lbar" style="background:var(--amber)"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span class="lvl" style="background:var(--amber);color:#fff">L4</span>
+      <span class="ltag" style="background:#fff;color:var(--amber);border:1px solid var(--amber-line)">contested</span>
+    </div>
+    <div class="lct">Genuinely contested</div>
+    <div class="crow"><span class="cl">When</span><span class="cv">two submitted versions, or conflicting annotations — meaning, not bytes</span></div>
+    <div class="crow"><span class="cl">Merge</span><span class="cv"><b>freeze BOTH versions</b> as immutable artifacts · open a conflict record</span></div>
+    <div class="crow"><span class="cl">Result</span><span class="cv">Conflict Inbox → human decides → decision recorded</span></div>
+    <div class="loss" style="background:#fff;border-top-color:var(--amber-line);color:var(--amber)"><b>Loss risk · none</b> — no silent loss, by construction</div>
+  </div>
+
+  <!-- ================= CONFLICT INBOX ================= -->
+  <div style="position:absolute;left:1800px;top:250px;width:540px;height:430px;background:var(--navy);border-radius:18px;
+              box-shadow:0 20px 48px rgba(15,27,45,.26),0 0 0 4px rgba(180,83,9,.10);padding:18px 20px;color:#fff;
+              display:flex;flex-direction:column;justify-content:space-between">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:9.6px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#F0C38A">Conflict inbox</div>
+        <div style="font-size:19px;font-weight:800;letter-spacing:-.015em;margin-top:4px">Neither version is chosen</div>
+      </div>
+      <span class="pill" style="background:rgba(248,196,138,.14);color:#F0C38A;height:22px;font-size:9.6px">needs review</span>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:12px">
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(143,209,198,.28);border-radius:10px;padding:8px 10px">
+        <div style="font-size:8.8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#8FD1C6">Version A · frozen</div>
+        <div class="mono" style="font-size:9.3px;color:#D5E6E2;margin-top:3px">sha256 9a1f…4c</div>
+        <div style="font-size:9px;color:#9FB3C8;margin-top:2px">recoverable forever</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(240,195,138,.30);border-radius:10px;padding:8px 10px">
+        <div style="font-size:8.8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#F0C38A">Version B · frozen</div>
+        <div class="mono" style="font-size:9.3px;color:#D5E6E2;margin-top:3px">sha256 c7e2…9b</div>
+        <div style="font-size:9px;color:#9FB3C8;margin-top:2px">recoverable forever</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:11px">
+      <span class="pill" style="background:#fff;color:var(--navy);height:24px;font-size:10px">Keep mine</span>
+      <span class="pill" style="background:#fff;color:var(--navy);height:24px;font-size:10px">Keep theirs</span>
+      <span class="pill" style="background:var(--teal);color:#fff;height:24px;font-size:10px">Merge manually</span>
+    </div>
+    <div style="font-size:9.8px;line-height:1.45;color:#9FB3C8;margin-top:11px">
+      Two-pane diff · keyboard operable · the student or instructor can inspect both sides before deciding.
+    </div>
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:9px 11px;margin-top:10px">
+      <div style="font-size:9.2px;line-height:1.5;color:#D5E6E2">
+        <b style="color:#F0C38A">Why freeze instead of guess?</b> No rule can rank two valid submissions — that is a human judgement.
+        The system says so explicitly instead of picking silently.
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(143,209,198,.22);padding-top:10px">
+      <div class="mono" style="font-size:9.2px;color:#8FD1C6">conflict { entity, field, left, right,</div>
+      <div class="mono" style="font-size:9.2px;color:#8FD1C6">           resolution, resolved_by, resolved_at }</div>
+      <div style="font-size:9.6px;color:#D5E6E2;margin-top:5px">Decision is recorded, never inferred. Both sides remain in <span class="mono" style="color:#8FD1C6">op_log</span> / <span class="mono" style="color:#8FD1C6">doc_updates</span> forever.</div>
+    </div>
+  </div>
+
+  <!-- ================= LOSSLESS BAND ================= -->
+  <div style="position:absolute;left:60px;top:806px;width:2280px;height:120px;background:var(--teal-soft);
+              border:1px solid var(--teal-line);border-radius:16px;display:flex;align-items:center;padding:0 24px;gap:26px">
+    <div style="width:880px">
+      <div style="font-size:9.6px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)">The guarantee</div>
+      <div style="font-size:19px;font-weight:800;color:var(--navy);letter-spacing:-.015em;margin-top:3px">Lossless at every level — L4 is where “no silent loss” is made explicit</div>
+      <div class="small" style="font-size:10.4px;margin-top:3px;color:#0A5B4F">A merge that discards one side is data loss with extra steps. History is the guaranteed escape hatch: every L2–L4 decision writes a conflict row, and both sides stay in the op log forever.</div>
+    </div>
+    <div style="flex:1;display:flex;gap:8px">
+      <div class="panel" style="flex:1;padding:9px 10px;background:#fff;border-color:var(--teal-line)"><div style="font-size:9px;font-weight:800;color:var(--teal)">L0</div><div style="font-size:9.4px;color:var(--ink2);line-height:1.35">nothing was in conflict</div></div>
+      <div class="panel" style="flex:1;padding:9px 10px;background:#fff;border-color:var(--teal-line)"><div style="font-size:9px;font-weight:800;color:var(--teal)">L1</div><div style="font-size:9.4px;color:var(--ink2);line-height:1.35">no keystroke dropped</div></div>
+      <div class="panel" style="flex:1;padding:9px 10px;background:#fff;border-color:var(--indigo-line)"><div style="font-size:9px;font-weight:800;color:var(--indigo)">L2</div><div style="font-size:9.4px;color:var(--ink2);line-height:1.35">both values kept in history</div></div>
+      <div class="panel" style="flex:1;padding:9px 10px;background:#fff;border-color:var(--line)"><div style="font-size:9px;font-weight:800;color:var(--navy2)">L3</div><div style="font-size:9.4px;color:var(--ink2);line-height:1.35">policy + actor recorded</div></div>
+      <div class="panel" style="flex:1;padding:9px 10px;background:#fff;border-color:var(--amber-line)"><div style="font-size:9px;font-weight:800;color:var(--amber)">L4</div><div style="font-size:9.4px;color:var(--ink2);line-height:1.35">frozen, human decides</div></div>
+    </div>
+  </div>
+
+  <!-- ================= WORKED EXAMPLE ================= -->
+  <div style="position:absolute;left:60px;top:948px;width:2280px;display:flex;align-items:baseline;justify-content:space-between">
+    <div>
+      <span style="font-size:9.6px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)">Worked example · the advanced twist</span>
+      <span style="font-size:16px;font-weight:800;color:var(--navy);letter-spacing:-.012em;margin-left:12px">A and B both edited doc_42 offline — where the pair lands depends on what was edited</span>
+    </div>
+    <div class="small" style="font-size:9.9px">same two devices · same reconnect · three different outcomes</div>
+  </div>
+
+  <div class="case" style="left:60px;top:986px;width:744px;height:264px;border-top:3px solid var(--teal)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="lvl" style="background:var(--teal-soft);color:var(--teal);height:23px;font-size:11px">L1</span>
+      <div style="font-size:13.4px;font-weight:800;color:var(--navy)">Both edited the same paragraph</div>
+    </div>
+    <div class="small" style="font-size:9.9px;margin-top:5px">Two Yjs peers, two inserts in line 12, no network — the text case.</div>
+    <div class="code"><b>A @12</b>  "the <span class="g">mitochondria is</span> powerhouse"
+<b>B @31</b>  "the powerhouse <span class="g">of the cell</span>"
+<span class="g">merge</span>  "the mitochondria is the powerhouse of the cell"</div>
+    <div class="loss" style="position:static;margin:10px -16px 0;height:auto;padding:9px 16px;border-radius:0;border-top:1px solid var(--green-line);border-bottom:1px solid var(--green-line)">
+      <b>Resolved at L1.</b>&nbsp;Both insert runs survive, interleaving preserved — zero keystrokes dropped.
+    </div>
+    <div class="tbar"><div class="tseg"><b>L0</b><span>same value?</span></div><div class="tseg hit" style="background:var(--teal);border-color:var(--teal)"><b>L1</b><span style="color:#fff">resolved</span></div><div class="tseg dim"><b>L2</b><span>per-field HLC</span></div><div class="tseg dim"><b>L3</b><span>domain policy</span></div><div class="tseg dim"><b>L4</b><span>freeze + human</span></div></div>
+    <div class="small" style="font-size:9.4px;margin-top:6px;color:var(--muted)">Tiebreak never needed: commutative merge means arrival order is irrelevant.</div>
+  </div>
+
+  <div class="case" style="left:828px;top:986px;width:744px;height:264px;border-top:3px solid var(--indigo)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="lvl" style="background:var(--indigo-soft);color:var(--indigo);height:23px;font-size:11px">L2</span>
+      <div style="font-size:13.4px;font-weight:800;color:var(--navy)">Different fields, same record</div>
+    </div>
+    <div class="small" style="font-size:9.9px;margin-top:5px">A edits the instructions, B edits the rubric — the structured-record case.</div>
+    <div class="code"><b>A</b>  assignment.instructions = "…new intro…"  rev 7
+<b>B</b>  assignment.rubric_json  = {band 4}     rev 7
+<span class="g">merge</span>  both fields applied → rev 9
+       HLC 1762598400455 &gt; 1762598400122 → B wins its field</div>
+    <div class="loss" style="position:static;margin:10px -16px 0;height:auto;padding:9px 16px;border-radius:0;border-top:1px solid var(--green-line);border-bottom:1px solid var(--green-line)">
+      <b>Resolved at L2.</b>&nbsp;Only the contested field would escalate; both prior values stay in history.
+    </div>
+    <div class="tbar"><div class="tseg"><b>L0</b><span>same value?</span></div><div class="tseg"><b>L1</b><span>CRDT merge</span></div><div class="tseg hit" style="background:var(--indigo);border-color:var(--indigo)"><b>L2</b><span style="color:#fff">resolved</span></div><div class="tseg dim"><b>L3</b><span>domain policy</span></div><div class="tseg dim"><b>L4</b><span>freeze + human</span></div></div>
+    <div class="small" style="font-size:9.4px;margin-top:6px;color:var(--muted)">per-field last-writer + deviceId tiebreak — deterministic on every replica.</div>
+  </div>
+
+  <div class="case" style="left:1596px;top:986px;width:744px;height:264px;border-top:3px solid var(--amber)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="lvl" style="background:var(--amber);color:#fff;height:23px;font-size:11px">L4</span>
+      <div style="font-size:13.4px;font-weight:800;color:var(--navy)">Two submitted versions</div>
+    </div>
+    <div class="small" style="font-size:9.9px;margin-top:5px">Both students submitted attempt 1 offline — the semantic case.</div>
+    <div class="code"><b>attempt 1 · A</b>  content_hash 9a1f…4c
+<b>attempt 1 · B</b>  content_hash c7e2…9b
+<span class="a">freeze</span>    both immutable · neither auto-chosen
+<span class="a">inbox</span>     conflict row + two-pane diff → human</div>
+    <div class="loss" style="position:static;margin:10px -16px 0;height:auto;padding:9px 16px;border-radius:0;border-top:1px solid var(--amber-line);border-bottom:1px solid var(--amber-line);background:var(--amber-soft);color:var(--amber)">
+      <b>Escalates to L4.</b>&nbsp;Nothing is discarded, nothing is picked silently — a human decides and the decision is recorded.
+    </div>
+    <div class="tbar"><div class="tseg"><b>L0</b><span>same value?</span></div><div class="tseg"><b>L1</b><span>CRDT merge</span></div><div class="tseg"><b>L2</b><span>per-field HLC</span></div><div class="tseg"><b>L3</b><span>domain policy</span></div><div class="tseg hit" style="background:var(--amber);border-color:var(--amber)"><b>L4</b><span style="color:#fff">escalated</span></div></div>
+    <div class="small" style="font-size:9.4px;margin-top:6px;color:var(--muted)">This is the case the brief forbids the system from resolving on its own.</div>
+  </div>
+
+  <!-- ================= ARROWS ================= -->
+  <svg class="arrow-layer" viewBox="0 0 2400 1350" width="2400" height="1350">
+    <defs>
+      <marker id="m-step" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#98A2B3"/></marker>
+      <marker id="m-stepA" markerWidth="9" markerHeight="9" refX="7.4" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#B45309"/></marker>
+    </defs>
+    <!-- L0 -> L1 -->
+    <path d="M360 649 L380 649 Q382 649 382 647 L382 586 Q382 584 384 584 L396 584" stroke="#98A2B3" stroke-width="2.2" fill="none" marker-end="url(#m-step)"/>
+    <!-- L1 -> L2 -->
+    <path d="M700 584 L720 584 Q722 584 722 582 L722 521 Q722 519 724 519 L736 519" stroke="#98A2B3" stroke-width="2.2" fill="none" marker-end="url(#m-step)"/>
+    <!-- L2 -> L3 -->
+    <path d="M1040 519 L1060 519 Q1062 519 1062 517 L1062 456 Q1062 454 1064 454 L1076 454" stroke="#98A2B3" stroke-width="2.2" fill="none" marker-end="url(#m-step)"/>
+    <!-- L3 -> L4 -->
+    <path d="M1380 454 L1400 454 Q1402 454 1402 452 L1402 391 Q1402 389 1404 389 L1416 389" stroke="#B45309" stroke-width="2.4" fill="none" marker-end="url(#m-stepA)"/>
+    <!-- L4 -> inbox -->
+    <path d="M1724 389 L1790 389" stroke="#B45309" stroke-width="3.4" fill="none" marker-end="url(#m-stepA)"/>
+  </svg>
+
+  <!-- ================= FOOTER ================= -->
+  <div class="panel" style="position:absolute;left:60px;top:1268px;width:2280px;height:56px;display:flex;align-items:center;gap:22px;padding:0 20px">
+    <div class="small" style="font-size:11.2px"><b style="color:var(--ink)">Decision record:</b> every L2–L4 merge writes <span class="mono" style="font-size:10px">{entity, field, left, right, resolution, resolved_by, resolved_at}</span> — both sides stay in <span class="mono" style="font-size:10px">op_log</span> / <span class="mono" style="font-size:10px">doc_updates</span> forever.</div>
+    <div style="flex:1"></div>
+    <div class="pill green" style="height:24px">✓ no silent loss</div>
+    <div class="pill teal" style="height:24px">history is the escape hatch</div>
+    <div class="pill amber" style="height:24px">L4 → human review</div>
+  </div>
+</div>
+</body>
+</html>

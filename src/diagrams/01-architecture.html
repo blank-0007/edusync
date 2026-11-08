@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EduSync — 01 Architecture</title>
+<link rel="stylesheet" href="../../assets/design.css">
+<style>
+  .canvas{width:2400px;height:1400px}
+  .tier-body{display:flex;justify-content:space-between}
+  .node .n-sub{font-size:10.6px}
+  .spine{position:absolute;background:var(--navy);border-radius:var(--r-lg);
+         border:1px solid #2A425C;box-shadow:0 22px 54px rgba(15,27,45,.28),0 0 0 4px rgba(14,124,107,.10)}
+  .spine .s-head{padding:18px 18px 0}
+  .spine .s-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8FD1C6}
+  .spine .s-title{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em;margin-top:5px;line-height:1.15}
+  .spine .s-sub{font-size:10.6px;line-height:1.4;color:#9FB3C8;margin-top:5px}
+  .srows{position:absolute;left:18px;right:18px;top:104px;bottom:52px;
+         display:flex;flex-direction:column;justify-content:space-between}
+  .srow{display:flex;gap:10px;align-items:flex-start;position:relative}
+  .srow .num{width:22px;height:22px;border-radius:50%;flex:0 0 auto;margin-top:1px;
+             background:#0B1523;border:1px solid rgba(143,209,198,.55);color:#8FD1C6;
+             font-family:var(--mono);font-size:9.5px;font-weight:700;
+             display:flex;align-items:center;justify-content:center}
+  .srow.key .num{background:var(--teal);border-color:var(--teal);color:#fff}
+  .srow .sl{font-size:11.6px;font-weight:750;color:#fff;line-height:1.2;letter-spacing:-.005em}
+  .srow .sn{font-size:9.7px;line-height:1.33;color:#9FB3C8;margin-top:2px;width:268px}
+  .sline{position:absolute;left:11px;top:8px;bottom:8px;width:1px;background:linear-gradient(180deg,rgba(143,209,198,.55),rgba(143,209,198,.22));z-index:0}
+  .s-foot{position:absolute;left:18px;right:18px;bottom:14px;font-size:9.7px;line-height:1.35;color:#7E93A8;
+          border-top:1px solid rgba(143,209,198,.22);padding-top:8px}
+  .gap-arrow{position:absolute}
+  .legend .k{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ================= HEADER ================= -->
+  <div style="position:absolute;left:60px;top:30px;width:1500px">
+    <div class="eyebrow">EduSync · system architecture</div>
+    <div class="h1" style="margin-top:7px">Three tiers, one reconciliation spine</div>
+    <div class="body" style="margin-top:11px;font-size:14px">
+      Every user action is durably recorded on the device <b>before</b> it touches the network. The highlighted
+      spine at right is the single path every write — and every reconciliation — takes.
+    </div>
+  </div>
+  <div class="legend" style="left:1745px;top:44px;width:595px;justify-content:flex-end;gap:16px">
+    <span class="k"><span class="sw" style="border-top:2.5px solid var(--teal)"></span>write path</span>
+    <span class="k"><span class="sw dashed" style="border-top:2.5px solid #22374F"></span>delta pull</span>
+    <span class="k"><span class="sw dashed" style="border-top:2.5px solid var(--amber)"></span>audit</span>
+  </div>
+
+  <!-- ================= CLIENT ================= -->
+  <div class="tier" style="left:60px;top:170px;width:1900px;height:350px">
+    <div class="tier-head" style="padding:10px 18px">
+      <div class="name">Tier 1 · Client — PWA</div>
+      <div class="role">offline-capable · <b style="color:var(--teal)">the device is the source of truth</b> — app works for days with zero network</div>
+    </div>
+    <div class="tier-body" style="padding:12px 16px">
+      <div style="width:330px;display:flex;flex-direction:column;gap:8px">
+        <div class="node" style="height:137px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="n-title">React 18 UI</div><span class="pill teal" style="height:19px;font-size:10px">①③</span>
+          </div>
+          <div class="n-sub">screens · optimistic render · <b>never blocks on I/O</b><br>TanStack Query cache + Zustand stores</div>
+          <div class="n-sub" style="margin-top:6px;color:var(--teal)">intent shown instantly, before any ack</div>
+        </div>
+        <div class="node" style="height:137px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="n-title">Local command bus</div><span class="pill teal" style="height:19px;font-size:10px">②</span>
+          </div>
+          <div class="n-sub">typed intent → immutable op · appends to op log<br>+ SQLite in the same turn (one transaction)</div>
+          <div class="n-sub" style="margin-top:6px">coalesces repeated field edits before they ever hit the wire</div>
+        </div>
+      </div>
+
+      <div class="node accent shadow" style="width:560px;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="n-title" style="font-size:13.5px">SYNC ENGINE · Web Worker</div>
+          <span class="pill solid-teal" style="height:20px;font-size:10px">the spine runs here</span>
+        </div>
+        <div class="n-sub" style="margin-top:4px">pure, testable core · off the main thread · owns durability of un-acked ops</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:9px">
+          <span class="pill outline" style="height:21px;font-size:10.2px">④ queue · coalesce</span>
+          <span class="pill outline" style="height:21px;font-size:10.2px">⑤ batcher · backoff</span>
+          <span class="pill outline" style="height:21px;font-size:10.2px">⑧ delta pull</span>
+          <span class="pill outline" style="height:21px;font-size:10.2px">⑨ merge router</span>
+          <span class="pill outline" style="height:21px;font-size:10.2px">⑩ convergence check</span>
+        </div>
+        <div class="panel" style="margin-top:10px;padding:8px 10px;background:rgba(255,255,255,.6)">
+          <div class="mono" style="font-size:10.2px;color:var(--navy);line-height:1.5;white-space:nowrap">
+            intent → op → queue → push → ack → pull → merge → converge
+          </div>
+        </div>
+        <div class="n-sub" style="margin-top:8px">scheduler: battery + connectivity aware · bounded queue · never drops un-acked ops</div>
+        <div style="margin-top:auto;padding-top:10px;border-top:1px solid rgba(14,124,107,.18)">
+          <div class="tiny" style="font-size:9.6px;font-weight:750;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)">device state machine</div>
+          <div style="display:flex;gap:5px;margin-top:5px">
+            <span class="pill grey" style="height:19px;font-size:9.8px">OFFLINE</span>
+            <span class="pill grey" style="height:19px;font-size:9.8px">CONNECTED</span>
+            <span class="pill grey" style="height:19px;font-size:9.8px">SYNCING</span>
+            <span class="pill grey" style="height:19px;font-size:9.8px">SYNCED</span>
+            <span class="pill grey" style="height:19px;font-size:9.8px">DEGRADED</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="width:300px;display:flex;flex-direction:column;gap:8px">
+        <div class="node" style="height:137px">
+          <div class="n-title">SQLite-WASM / OPFS</div>
+          <div class="n-sub"><b>records</b> · op log (durable) · device cursors · conflict rows</div>
+          <div class="n-sub" style="margin-top:6px">survives restart · transactions + indices · append-only op log mirrors the server's <span class="mono">UNIQUE(op_id)</span></div>
+        </div>
+        <div class="node" style="height:137px">
+          <div class="n-title">IndexedDB · Yjs docs</div>
+          <div class="n-sub">Yjs document updates + state vectors · y-indexeddb</div>
+          <div class="n-sub" style="margin-top:6px">Dexie fallback for older browsers · updates replay from state vector</div>
+        </div>
+      </div>
+
+      <div style="width:300px;display:flex;flex-direction:column;gap:8px">
+        <div class="node" style="height:137px">
+          <div class="n-title">Blob cache</div>
+          <div class="n-sub">content-addressed by sha256 · media, rubrics, exam package</div>
+          <div class="n-sub" style="margin-top:6px">evicts <i>derived</i> bytes only — ops &amp; drafts are never evicted · storage meter in the UI</div>
+        </div>
+        <div class="node" style="height:137px">
+          <div class="n-title">WebCrypto</div>
+          <div class="n-sub">Ed25519 device key · op signing · AES-GCM at rest</div>
+          <div class="n-sub" style="margin-top:6px">private key never leaves the device · public key registered at first sync</div>
+        </div>
+      </div>
+
+      <div style="width:280px;display:flex;flex-direction:column;gap:8px">
+        <div class="node" style="height:137px">
+          <div class="n-title">Service worker</div>
+          <div class="n-sub">app shell + media precache · Workbox · versioned</div>
+          <div class="n-sub" style="margin-top:6px">"Available offline" chip + storage meter · survives hard refresh</div>
+        </div>
+        <div class="node" style="height:137px">
+          <div class="n-title">Connectivity probe</div>
+          <div class="n-sub">explicit <span class="mono">/health</span> probe decides state</div>
+          <div class="n-sub" style="margin-top:6px;color:var(--amber)"><b>navigator.onLine is only a hint</b></div>
+          <div class="n-sub" style="margin-top:4px">GET <span class="mono">/health</span> + WSS heartbeat; a failed request is the truth</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EDGE + GATEWAY ================= -->
+  <div class="tier" style="left:60px;top:580px;width:1900px;height:130px">
+    <div class="tier-head" style="padding:8px 18px">
+      <div class="name">Tier 2 · Edge + API gateway</div>
+      <div class="role">the only door into the platform · every request authenticated and validated</div>
+    </div>
+    <div class="tier-body" style="padding:10px 16px">
+      <div class="node" style="width:640px;height:66px">
+        <div class="n-title">CDN · TLS termination · rate limiting</div>
+        <div class="n-sub">static shell + media at the edge · Caddy in the demo, per-device quotas</div>
+      </div>
+      <div class="node navy" style="width:760px;height:66px">
+        <div class="n-title">API GATEWAY</div>
+        <div class="n-sub">JWT + device key (Ed25519) · zod schema validation of untrusted offline payloads · sync-aware routing</div>
+      </div>
+      <div class="node" style="width:400px;height:66px;display:flex;flex-direction:column;justify-content:center">
+        <div class="n-title" style="font-size:12px">HTTPS + WSS</div>
+        <div class="n-sub">batched · resumable · ≤ 200 ops or 512 KB per push</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SERVICES ================= -->
+  <div class="tier" style="left:60px;top:770px;width:1900px;height:190px">
+    <div class="tier-head" style="padding:8px 18px">
+      <div class="name">Tier 3 · Services — Node.js 20</div>
+      <div class="role">stateless request plane · Postgres holds the truth the device writes into</div>
+    </div>
+    <div class="tier-body" style="padding:10px 16px">
+      <div class="node accent" style="width:360px;height:118px">
+        <div style="display:flex;justify-content:space-between"><div class="n-title">sync-service</div><span class="pill teal" style="height:19px;font-size:10px">⑥⑦</span></div>
+        <div class="n-sub" style="margin-top:5px">op-log ingest · <b>dedupe by opId</b> · HLC ordering (deviceId tiebreak) · per-entity rev · acks · delta cursor</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div style="display:flex;justify-content:space-between"><div class="n-title">doc-service</div><span class="pill teal" style="height:19px;font-size:10px">⑨</span></div>
+        <div class="n-sub" style="margin-top:5px">Yjs update store · periodic snapshots · WS rooms + presence · state vectors for delta pull</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div style="display:flex;justify-content:space-between"><div class="n-title">submission-service</div><span class="pill teal" style="height:19px;font-size:10px">⑦</span></div>
+        <div class="n-sub" style="margin-top:5px">immutable attempts · idempotency keys · content_hash · deadline policy · receipts (5 sends → 1 attempt)</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div style="display:flex;justify-content:space-between"><div class="n-title">exam-service</div><span class="pill teal" style="height:19px;font-size:10px">⑪</span></div>
+        <div class="n-sub" style="margin-top:5px">sealed packages · session nonce (single use) · chain verification · clock monotonicity · integrity flags</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div style="display:flex;justify-content:space-between"><div class="n-title">media-service</div><span class="pill teal" style="height:19px;font-size:10px">⑦</span></div>
+        <div class="n-sub" style="margin-top:5px">presigned chunked upload · checksum verification · content-addressed blobs · GC by refcount</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DATA ================= -->
+  <div class="tier" style="left:60px;top:1020px;width:1900px;height:190px">
+    <div class="tier-head" style="padding:8px 18px">
+      <div class="name">Data &amp; jobs</div>
+      <div class="role">durable state, dedupe authority, replayable audit — never the only copy of client work</div>
+    </div>
+    <div class="tier-body" style="padding:10px 16px">
+      <div class="node" style="width:360px;height:118px">
+        <div class="n-title">PostgreSQL 16</div>
+        <div class="n-sub" style="margin-top:5px"><b>op_log UNIQUE(op_id)</b> — the dedupe authority · outbox · JSONB payloads · HLC indices · audit_events</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div class="n-title">Redis 7</div>
+        <div class="n-sub" style="margin-top:5px">dedupe fast path (<span class="mono">SETNX</span>) · presence · rate limits · BullMQ queues — never the source of truth</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div class="n-title">BullMQ workers</div>
+        <div class="n-sub" style="margin-top:5px">merge jobs · notifications · document snapshots · integrity review queue · analytics rollups</div>
+      </div>
+      <div class="node" style="width:360px;height:118px">
+        <div class="n-title">S3 / MinIO</div>
+        <div class="n-sub" style="margin-top:5px">blobs keyed by sha256 · versioning · lifecycle rules · presigned chunked PUTs</div>
+      </div>
+      <div class="node amber" style="width:360px;height:118px">
+        <div style="display:flex;justify-content:space-between"><div class="n-title">Observability</div><span class="pill amber" style="height:19px;font-size:10px">⑪</span></div>
+        <div class="n-sub" style="margin-top:5px">OTel → Tempo · Prometheus + Grafana · pino → Loki · sync latency, queue depth, duplicate rate, conflict rate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SPINE RAIL ================= -->
+  <div class="spine" style="left:2000px;top:170px;width:340px;height:1040px">
+    <div class="s-head">
+      <div class="s-eyebrow">The reconciliation spine</div>
+      <div class="s-title">One path, every write</div>
+      <div class="s-sub">Not a cache layer bolted onto CRUD — this ordering is what makes the platform correct under partition.</div>
+    </div>
+    <div class="srows">
+      <div class="sline"></div>
+      <div class="srow"><div class="num">01</div><div><div class="sl">intent</div><div class="sn">user acts · UI never waits on a network round trip</div></div></div>
+      <div class="srow"><div class="num">02</div><div><div class="sl">local durable op</div><div class="sn">opId (ULID) + HLC + payload + device signature, committed to SQLite/OPFS &amp; the op log</div></div></div>
+      <div class="srow"><div class="num">03</div><div><div class="sl">UI reflects instantly</div><div class="sn">optimistic render from local state · no spinner between a student and their own words</div></div></div>
+      <div class="srow"><div class="num">04</div><div><div class="sl">queue</div><div class="sn">coalesced, bounded, oldest-first · superseded drafts dropped — never submitted work</div></div></div>
+      <div class="srow"><div class="num">05</div><div><div class="sl">batched push</div><div class="sn">≤ 200 ops / 512 KB · HTTPS + WSS · resumable across app restarts</div></div></div>
+      <div class="srow key"><div class="num">06</div><div><div class="sl">dedupe · order · validate</div><div class="sn">UNIQUE(op_id) wins races · HLC then deviceId · zod rejects malformed payloads</div></div></div>
+      <div class="srow"><div class="num">07</div><div><div class="sl">ack</div><div class="sn">applied / duplicate / rejected + serverRev · duplicate is safe to retry blindly</div></div></div>
+      <div class="srow"><div class="num">08</div><div><div class="sl">delta pull</div><div class="sn">Yjs state vectors + per-table cursor → kilobytes after 3 days offline, not gigabytes</div></div></div>
+      <div class="srow"><div class="num">09</div><div><div class="sl">merge</div><div class="sn">CRDT text · per-field HLC · domain policy · freeze &amp; escalate — see the merge ladder</div></div></div>
+      <div class="srow"><div class="num">10</div><div><div class="sl">converge</div><div class="sn">byte-equal state hash across devices &amp; server, asserted by property tests</div></div></div>
+      <div class="srow"><div class="num">11</div><div><div class="sl">audit</div><div class="sn">hash-chained events · every reconciliation decision recorded with actor + inputs</div></div></div>
+    </div>
+    <div class="s-foot">①–⑪ markers on the tier components show where each stage runs.</div>
+  </div>
+
+  <!-- ================= FOOTER LEGEND ================= -->
+  <div class="panel" style="position:absolute;left:60px;top:1246px;width:2280px;height:86px;display:flex;align-items:center;gap:26px;padding:0 22px">
+    <div class="legend" style="position:static;gap:14px">
+      <span class="k"><span class="sw" style="border-top:2.5px solid var(--teal)"></span>write path (down)</span>
+      <span class="k"><span class="sw dashed" style="border-top:2.5px solid #22374F"></span>delta pull (up)</span>
+    </div>
+    <div style="width:1px;height:34px;background:var(--line)"></div>
+    <div class="small" style="font-size:11.6px"><b style="color:var(--ink)">Correctness anchors:</b> opId + ULID · HLC ordering · UNIQUE(op_id) · state vectors · hash-chained audit</div>
+    <div style="flex:1"></div>
+    <div class="pill indigo" style="height:26px">at-least-once transport</div>
+    <div class="pill teal" style="height:26px">exactly-once effects</div>
+    <div class="pill green" style="height:26px">delta everything</div>
+  </div>
+
+  <!-- ================= ARROWS ================= -->
+  <svg class="arrow-layer" viewBox="0 0 2400 1400" width="2400" height="1400">
+    <defs>
+      <marker id="m-teal" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#0E7C6B"/></marker>
+      <marker id="m-navy" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#22374F"/></marker>
+      <marker id="m-amber" markerWidth="9" markerHeight="9" refX="7.2" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#B45309"/></marker>
+    </defs>
+
+    <!-- client -> edge -->
+    <path d="M620 524 L620 574" stroke="#0E7C6B" stroke-width="2.5" fill="none" marker-end="url(#m-teal)"/>
+    <path d="M1380 578 L1380 528" stroke="#22374F" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#m-navy)"/>
+
+    <!-- edge -> services -->
+    <path d="M620 714 L620 764" stroke="#0E7C6B" stroke-width="2.5" fill="none" marker-end="url(#m-teal)"/>
+    <path d="M1380 768 L1380 718" stroke="#22374F" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#m-navy)"/>
+
+    <!-- services -> data -->
+    <path d="M620 964 L620 1014" stroke="#0E7C6B" stroke-width="2.5" fill="none" marker-end="url(#m-teal)"/>
+    <path d="M1380 1018 L1380 968" stroke="#B45309" stroke-width="2.2" stroke-dasharray="6 5" fill="none" marker-end="url(#m-amber)"/>
+
+    <!-- spine rail accent: small teal ticks from tiers into the rail -->
+    <path d="M1964 345 L1996 345" stroke="#8FD1C6" stroke-width="2" fill="none"/>
+    <path d="M1964 645 L1996 645" stroke="#8FD1C6" stroke-width="2" fill="none"/>
+    <path d="M1964 865 L1996 865" stroke="#8FD1C6" stroke-width="2" fill="none"/>
+    <path d="M1964 1115 L1996 1115" stroke="#8FD1C6" stroke-width="2" fill="none"/>
+  </svg>
+
+  <!-- flow labels -->
+  <div class="flow-label teal" style="left:636px;top:537px">⑤ batched push · HTTPS + WSS</div>
+  <div class="flow-label" style="left:1396px;top:537px">⑧ delta pull · state vectors</div>
+  <div class="flow-label teal" style="left:636px;top:727px">⑤ auth + schema validated → sync-service</div>
+  <div class="flow-label" style="left:1396px;top:727px">⑩ records + Yjs updates</div>
+  <div class="flow-label teal" style="left:636px;top:977px">⑥ append + dedupe · ⑦ ack</div>
+  <div class="flow-label" style="left:1396px;top:977px;border-color:var(--amber-line);color:var(--amber);background:var(--amber-soft)">⑪ outbox → audit · metrics</div>
+</div>
+</body>
+</html>
