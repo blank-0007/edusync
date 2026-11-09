@@ -7,6 +7,7 @@
  *  - records   keyPath `key` = `${entity}:${entityId}`: materialised server records
  *  - conflicts keyPath `id`: conflict ledger mirror
  *  - catalog   keyPath `key`: offline course / lessons / assignment cache
+ *  - docs      keyPath `docId`: last Yjs snapshot per shared document (phase 2, v2 schema)
  */
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import { compareHlc } from '@edusync/protocol';
@@ -20,7 +21,8 @@ import type {
 } from '@edusync/protocol';
 
 export const DB_NAME = 'edusync';
-export const DB_VERSION = 1;
+/** v2 adds the `docs` store (shared Yjs documents). */
+export const DB_VERSION = 2;
 
 export type RecordPayload = DraftRecord | LessonProgressRecord | SubmissionRecord;
 
@@ -56,12 +58,32 @@ export interface CatalogRow {
   fetchedAt: number;
 }
 
+/**
+ * Locally persisted Yjs document snapshot (phase 2, CONTRACT.md §D3).
+ * The snapshot is a full `Y.encodeStateAsUpdate` of the document; `cursor` is the last
+ * per-document server seq included in it. The doc summary fields let the Document page
+ * render its list/editor chrome before the network answers.
+ */
+export interface DocStateRow {
+  docId: string;
+  /** base64 of a full Yjs state update. */
+  snapshotB64: string;
+  /** Last per-document seq applied on this device. */
+  cursor: number;
+  title: string;
+  courseId: string;
+  updateCount: number;
+  /** Wall-clock of the last local write to this snapshot. */
+  savedAt: number;
+}
+
 interface EduSyncDB extends DBSchema {
   meta: { key: string; value: MetaRow };
   ops: { key: string; value: QueuedOp };
   records: { key: string; value: RecordRow };
   conflicts: { key: string; value: ConflictRecord };
   catalog: { key: string; value: CatalogRow };
+  docs: { key: string; value: DocStateRow };
 }
 
 let dbPromise: Promise<IDBPDatabase<EduSyncDB>> | null = null;
@@ -75,6 +97,8 @@ export function open(): Promise<IDBPDatabase<EduSyncDB>> {
         if (!db.objectStoreNames.contains('records')) db.createObjectStore('records', { keyPath: 'key' });
         if (!db.objectStoreNames.contains('conflicts')) db.createObjectStore('conflicts', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('catalog')) db.createObjectStore('catalog', { keyPath: 'key' });
+        // v1 -> v2: existing installs keep every store; only `docs` is added.
+        if (!db.objectStoreNames.contains('docs')) db.createObjectStore('docs', { keyPath: 'docId' });
       },
     });
   }
@@ -200,4 +224,23 @@ export async function getCatalogRow(key: string): Promise<CatalogRow | undefined
 
 export async function listCatalog(): Promise<CatalogRow[]> {
   return (await open()).getAll('catalog');
+}
+
+/* ------------------------------------------------------------------ docs */
+
+/** Persist the full local Yjs snapshot + cursor for one shared document. */
+export async function putDocState(row: DocStateRow): Promise<void> {
+  await (await open()).put('docs', row);
+}
+
+export async function getDocState(docId: string): Promise<DocStateRow | undefined> {
+  return (await open()).get('docs', docId);
+}
+
+export async function listDocStates(): Promise<DocStateRow[]> {
+  return (await open()).getAll('docs');
+}
+
+export async function clearDocStates(): Promise<void> {
+  await (await open()).clear('docs');
 }

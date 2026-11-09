@@ -6,6 +6,8 @@ import type {
   Assignment,
   ConflictRecord,
   Course,
+  DocSnapshotResponse,
+  DocSummary,
   LoginResponse,
   Op,
   OpResult,
@@ -155,6 +157,25 @@ export interface MySubmissionsResponse {
 
 export interface PushResultRow extends OpResult {}
 
+/* -------------------------------------------------- shared documents (§D3) */
+
+export interface DocsResponse {
+  docs: DocSummary[];
+}
+
+export type DocDetailResponse = DocSnapshotResponse;
+
+/** WebSocket URL for the live document channel (`§D5`), derived from the HTTP base. */
+export function docWsUrl(token: string, docId: string): string {
+  const url = new URL(API_BASE);
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+  url.pathname = '/ws';
+  url.search = '';
+  url.searchParams.set('token', token);
+  url.searchParams.set('docId', docId);
+  return url.toString();
+}
+
 /* ------------------------------------------------------------------- api */
 
 export const api = {
@@ -203,8 +224,22 @@ export const api = {
     return request<SyncPushResponse>('/api/sync/push', { token, body: { ops } });
   },
 
-  pull(token: string, sinceSeq: number): Promise<SyncPullResponse> {
-    return request<SyncPullResponse>('/api/sync/pull', { token, body: { sinceSeq } });
+  pull(
+    token: string,
+    sinceSeq: number,
+    docCursors?: Record<string, number>,
+  ): Promise<SyncPullResponse> {
+    const body: { sinceSeq: number; docCursors?: Record<string, number> } = { sinceSeq };
+    if (docCursors && Object.keys(docCursors).length > 0) body.docCursors = docCursors;
+    return request<SyncPullResponse>('/api/sync/pull', { token, body });
+  },
+
+  docs(token: string): Promise<DocsResponse> {
+    return request<DocsResponse>('/api/docs', { token });
+  },
+
+  docSnapshot(token: string, docId: string): Promise<DocDetailResponse> {
+    return request<DocDetailResponse>(`/api/docs/${encodeURIComponent(docId)}`, { token });
   },
 
   stateHash(token: string): Promise<StateHashResponse> {

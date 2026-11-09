@@ -18,6 +18,7 @@ free_ports() {
 run npm run typecheck
 run npm test
 run npm run e2e
+run npm run e2e:docs
 run npm -w @edusync/web run build
 
 step "fresh database + demo stack"

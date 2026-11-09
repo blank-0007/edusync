@@ -19,6 +19,7 @@ interface NavDefinition {
 const PAGE_TITLES: Record<Page, string> = {
   library: 'Lesson library',
   assignment: 'Assignment workspace',
+  doc: 'Shared document',
   sync: 'Sync Center',
   review: 'Review Inbox',
   login: 'Sign in',
@@ -76,6 +77,7 @@ export function AppShell({ page, onNavigate, children }: AppShellProps) {
       icon: 'fileText',
       badge: catalog.assignments.length,
     },
+    { page: 'doc', label: 'Shared document', icon: 'fileText' },
   ];
   const syncReview: NavDefinition[] = [
     { page: 'sync', label: 'Sync Center', icon: 'refresh', badge: sync.pending, badgeTone: 'amber' },

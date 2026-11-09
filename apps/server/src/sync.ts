@@ -6,6 +6,7 @@ import {
   parseHlc,
   type ChangeRow,
   type ConflictRecord,
+  type DocUpdatePayload,
   type DraftPayload,
   type DraftRecord,
   type Field,
@@ -21,6 +22,7 @@ import {
 import { z } from 'zod';
 import type { HybridClock } from '@edusync/protocol';
 import { transaction } from './db';
+import { applyDocUpdate, docText, pullDocUpdates } from './docs';
 import { httpError } from './errors';
 import {
   conflictToWire,
@@ -32,6 +34,7 @@ import {
   getSubmissionBySubmissionId,
   getConflictRow,
   listConflictRows,
+  listDocumentRows,
   listDraftRows,
   listProgressRows,
   submissionToWire,
@@ -74,7 +77,7 @@ export interface IncomingOp {
   hlc: string;
   entity: OpEntity;
   entityId: string;
-  type: 'create' | 'update' | 'delete';
+  type: 'create' | 'update' | 'delete' | 'append';
   baseRev: number;
   payload: unknown;
 }
@@ -102,7 +105,12 @@ const submissionPayloadSchema = z.object({
   clientSubmittedAt: z.string().min(1),
 });
 
-type ValidatedPayload = DraftPayload | LessonProgressPayload | SubmissionPayload;
+const docUpdatePayloadSchema = z.object({
+  docId: z.string().min(1),
+  updateB64: z.string().min(1),
+});
+
+type ValidatedPayload = DraftPayload | LessonProgressPayload | SubmissionPayload | DocUpdatePayload;
 
 type PayloadValidation = { ok: true; payload: ValidatedPayload } | { ok: false; reason: string };
 
@@ -142,6 +150,11 @@ export function validateOpPayload(op: IncomingOp): PayloadValidation {
     }
     case 'submission': {
       const parsed = submissionPayloadSchema.safeParse(op.payload);
+      if (!parsed.success) return { ok: false, reason: 'invalid_payload' };
+      return { ok: true, payload: parsed.data };
+    }
+    case 'doc_update': {
+      const parsed = docUpdatePayloadSchema.safeParse(op.payload);
       if (!parsed.success) return { ok: false, reason: 'invalid_payload' };
       return { ok: true, payload: parsed.data };
     }
@@ -228,6 +241,8 @@ function applyValidatedOp(
       return applyLessonProgress(ctx, actor, op, payload as LessonProgressPayload);
     case 'submission':
       return applySubmission(ctx, actor, op, payload as SubmissionPayload);
+    case 'doc_update':
+      return applyDocUpdate(ctx, actor, op, payload as DocUpdatePayload);
     default:
       return rejected(op, 'unknown_entity');
   }
@@ -536,7 +551,12 @@ export function submitOnce(ctx: SyncContext, actor: Actor, payload: SubmissionPa
 
 /** ---- pull / state hash ---- */
 
-export function pullChanges(ctx: SyncContext, userId: string, sinceSeq: number): SyncPullResponse {
+export function pullChanges(
+  ctx: SyncContext,
+  userId: string,
+  sinceSeq: number,
+  docCursors: Record<string, number> = {},
+): SyncPullResponse {
   const db = ctx.db;
   const rows = db
     .prepare(
@@ -559,10 +579,14 @@ export function pullChanges(ctx: SyncContext, userId: string, sinceSeq: number):
     payload: JSON.parse(row.payload_json) as ChangeRow['payload'],
   }));
 
+  const { docUpdates, nextDocCursors } = pullDocUpdates(db, docCursors);
+
   return {
     changes,
     conflicts: listConflictRows(db, userId).map(conflictToWire),
     nextSeq: changes.length > 0 ? changes[changes.length - 1].seq : sinceSeq,
+    docUpdates,
+    nextDocCursors,
     serverHlc: ctx.clock.now(),
   };
 }
@@ -619,7 +643,15 @@ export function stateHash(ctx: SyncContext, userId: string): { seq: number; hash
       status: conflict.status,
     }));
 
-  const state = { drafts, lessonProgress, submissions, conflicts };
+  const docs = listDocumentRows(db)
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((row) => ({
+      id: row.id,
+      text: docText(db, row.id),
+      seq: Number(row.cursor),
+    }));
+
+  const state = { drafts, lessonProgress, submissions, conflicts, docs };
   const seqRow = db.prepare('SELECT next_seq FROM user_seq WHERE user_id = ?').get(userId) as
     | { next_seq: number }
     | undefined;

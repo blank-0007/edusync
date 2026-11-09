@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
  * Schema creation is idempotent and guarded by SQLite's `user_version`.
  */
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
@@ -154,6 +154,36 @@ CREATE TABLE IF NOT EXISTS conflicts (
   created_at  TEXT NOT NULL
 );
 
+-- Shared Yjs documents (docs/CONTRACT.md addendum §D3). snapshot_b64 is a full state
+-- update (Y.encodeStateAsUpdate) materialised after every applied doc_update op; cursor
+-- is the latest per-document seq included in that snapshot, so a client can load the
+-- snapshot and pull forward from cursor.
+CREATE TABLE IF NOT EXISTS documents (
+  id              TEXT PRIMARY KEY,
+  title           TEXT NOT NULL,
+  course_id       TEXT NOT NULL REFERENCES courses(id),
+  snapshot_b64    TEXT NOT NULL,
+  state_vector_b64 TEXT NOT NULL,
+  cursor          INTEGER NOT NULL DEFAULT 0,
+  update_count    INTEGER NOT NULL DEFAULT 0,
+  updated_at      TEXT NOT NULL
+);
+
+-- Durable per-document CRDT update log (§D2). seq is monotonic per document; op_id is the
+-- dedupe key shared with op_log (a replayed op never inserts here twice). No-op updates
+-- (an update the server already contains) are acknowledged without burning a seq.
+CREATE TABLE IF NOT EXISTS doc_updates (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  doc_id         TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+  seq            INTEGER NOT NULL,
+  op_id          TEXT NOT NULL UNIQUE,
+  device_id      TEXT NOT NULL,
+  author_user_id TEXT NOT NULL,
+  update_b64     TEXT NOT NULL,
+  created_at     TEXT NOT NULL,
+  UNIQUE (doc_id, seq)
+);
+
 -- Hash-chained audit trail (each row hashes the previous row's hash + its own content).
 CREATE TABLE IF NOT EXISTS audit_events (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -173,6 +203,7 @@ CREATE INDEX IF NOT EXISTS idx_submissions_student ON submissions(student_id, as
 CREATE INDEX IF NOT EXISTS idx_changes_user_seq ON changes(user_id, seq);
 CREATE INDEX IF NOT EXISTS idx_conflicts_user_status ON conflicts(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_op_log_user ON op_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_doc_updates_doc_seq ON doc_updates(doc_id, seq);
 `;
 
 /** Default on-disk location: apps/server/data/edusync.db (independent of the cwd). */

@@ -14,6 +14,7 @@ import {
   compareHlc,
   parseHlc,
   type ConflictRecord,
+  type DocUpdateRecord,
   type Op,
   type OpResult,
 } from '@edusync/protocol';
@@ -23,6 +24,18 @@ import { ApiError, api } from '../api';
 import { ensureToken, getAuthState, notifyUnauthorized, subscribeAuth } from '../auth';
 
 export type EngineState = 'offline' | 'connecting' | 'syncing' | 'synced' | 'degraded';
+
+/**
+ * The shared-document manager registers itself here (phase 2, CONTRACT.md §D3/D4) so the
+ * sync engine can (a) send the per-document cursors with every pull and (b) hand returned
+ * Yjs updates to the Y.Doc store. Decoupled via an interface to avoid an import cycle.
+ */
+export interface DocSyncSource {
+  /** Last per-document seq applied on this device, for `pull.docCursors`. */
+  getDocCursors(): Record<string, number>;
+  /** Apply `docUpdates` / adopt `nextDocCursors` from a pull response (idempotent). */
+  applyDocPull(docUpdates: DocUpdateRecord[], nextDocCursors: Record<string, number>): void;
+}
 
 export interface SyncStats {
   applied: number;
@@ -114,6 +127,7 @@ class SyncEngine {
   private authUnsub: (() => void) | null = null;
   private snapshot: SyncSnapshot;
   private initialized: Promise<void> | null = null;
+  private docSource: DocSyncSource | null = null;
 
   constructor() {
     this.clock = new HybridClock('web');
@@ -197,6 +211,15 @@ class SyncEngine {
   };
 
   getSnapshot = (): SyncSnapshot => this.snapshot;
+
+  /** Register (or with `null`, unregister) the active document manager. */
+  setDocSyncSource(source: DocSyncSource | null): void {
+    this.docSource = source;
+  }
+
+  hasDocSyncSource(): boolean {
+    return this.docSource !== null;
+  }
 
   private buildSnapshot(): SyncSnapshot {
     return {
@@ -422,8 +445,19 @@ class SyncEngine {
 
   private async pull(token: string): Promise<void> {
     const sinceSeq = this.seq;
-    const response = await api.pull(token, sinceSeq);
+    const cursors = this.docSource?.getDocCursors() ?? null;
+    const response = await api.pull(token, sinceSeq, cursors ?? undefined);
     const now = Date.now();
+
+    // §D4: apply returned Yjs updates idempotently and adopt the new per-doc cursors.
+    // Own-device updates come back too (they are no-ops in Yjs); never drop them here.
+    if (this.docSource) {
+      const docUpdates = response.docUpdates ?? [];
+      const nextDocCursors = response.nextDocCursors ?? {};
+      if (docUpdates.length > 0 || Object.keys(nextDocCursors).length > 0) {
+        this.docSource.applyDocPull(docUpdates, nextDocCursors);
+      }
+    }
 
     if (response.changes && response.changes.length > 0) {
       const rows: db.RecordRow[] = response.changes.map((change) => ({
@@ -450,6 +484,25 @@ class SyncEngine {
     await db.setMeta('lastSyncAt', now);
     await db.setMeta('lastPullAt', now);
     this.emit();
+  }
+
+  /**
+   * Pull catch-up outside a flush — used by the document manager after it has loaded the
+   * server snapshot, and when a live WebSocket (re)connects. Never throws.
+   */
+  async pullNow(): Promise<void> {
+    if (!this.inited) return;
+    if (this.flushing) return; // the in-flight flush finishes with its own pull
+    if (this.simulateOffline || !this.browserOnline()) return;
+    if (getAuthState().status !== 'signed-in') return;
+    const token = await ensureToken();
+    if (!token) return;
+    try {
+      await this.pull(token);
+    } catch (error) {
+      this.lastError = error instanceof Error ? error.message : 'Document catch-up failed';
+      this.emit();
+    }
   }
 
   private async handleFailure(error: unknown, inFlight: QueuedOp[]): Promise<void> {

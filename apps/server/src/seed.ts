@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import * as Y from 'yjs';
 import type { Lesson, RubricCriterion } from '@edusync/protocol';
 import { transaction } from './db';
 
@@ -237,6 +238,27 @@ export function seed(db: DatabaseSync, now: number = Date.now()): void {
       14,
       new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString(),
       JSON.stringify(RUBRIC),
+    );
+
+    const seedDoc = new Y.Doc();
+    const docText = `Lab 3 — membrane data (group 2)\n\nProtocol: pellet resuspended in NaCl, 25 °C, 10 min.\nControl: 0.15 M NaCl; test: 0.30 M NaCl; n = 3.\nObservation — 0.30 M NaCl, 10 min:\ncells shrank and the pellet cleared slowly in the first minute of centrifugation.\nControl (0.15 M NaCl): no volume change; absorbance stable at 0.42 ± 0.01.\nConclusion: water crosses the membrane freely, so lysis depended on the osmotic gradient alone.`;
+    seedDoc.getText('content').insert(0, docText);
+    const snapshotB64 = Buffer.from(Y.encodeStateAsUpdate(seedDoc)).toString('base64');
+    const stateVectorB64 = Buffer.from(Y.encodeStateVector(seedDoc)).toString('base64');
+
+    db.prepare(
+      `INSERT OR IGNORE INTO documents
+         (id, title, course_id, snapshot_b64, state_vector_b64, cursor, update_count, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      'd_group2',
+      'Lab 3 — membrane data (shared)',
+      'c_bio201',
+      snapshotB64,
+      stateVectorB64,
+      0,
+      0,
+      createdAt,
     );
   });
 }

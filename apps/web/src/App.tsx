@@ -8,11 +8,14 @@ import { LibraryPage } from './pages/Library';
 import { AssignmentPage } from './pages/Assignment';
 import { SyncCenterPage } from './pages/SyncCenter';
 import { ReviewInboxPage } from './pages/ReviewInbox';
+import { DocumentPage } from './pages/Document';
 
 function renderPage(page: Page, navigate: (next: Page) => void) {
   switch (page) {
     case 'assignment':
       return <AssignmentPage navigate={navigate} />;
+    case 'doc':
+      return <DocumentPage navigate={navigate} />;
     case 'sync':
       return <SyncCenterPage navigate={navigate} />;
     case 'review':

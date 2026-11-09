@@ -1,13 +1,18 @@
 import type { DatabaseSync } from 'node:sqlite';
 import Fastify, { type FastifyError, type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import cors from '@fastify/cors';
+import fastifyWebsocket from '@fastify/websocket';
 import { HybridClock } from '@edusync/protocol';
 import { ZodError } from 'zod';
+import { parseDevToken } from './auth';
 import { openDb } from './db';
+import { joinDocRoom, leaveDocRoom } from './docs';
 import { HttpError } from './errors';
+import { getDocumentRow, getUser, userToWire } from './repos';
 import { registerAuthRoutes } from './routes/auth';
 import { registerCatalogRoutes } from './routes/catalog';
 import { registerConflictRoutes } from './routes/conflicts';
+import { registerDocRoutes } from './routes/docs';
 import { registerHealthRoutes } from './routes/health';
 import { registerSubmissionRoutes } from './routes/submissions';
 import { registerSyncRoutes } from './routes/sync';
@@ -47,6 +52,9 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   app.decorate('clock', clock);
   app.decorateRequest('auth', null);
 
+  // Register WebSocket plugin
+  app.register(fastifyWebsocket);
+
   // One encapsulated plugin scope keeps CORS headers, error envelope and routes together.
   app.register(async (instance) => {
     await instance.register(cors, {
@@ -62,6 +70,49 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     registerSubmissionRoutes(instance, ctx);
     registerSyncRoutes(instance, ctx);
     registerConflictRoutes(instance, ctx);
+    registerDocRoutes(instance, ctx);
+  });
+
+  // WebSocket endpoint for collaborative document rooms
+  app.get('/ws', { websocket: true }, (socket, request) => {
+    const query = request.query as Record<string, string | undefined>;
+    const token = query.token;
+    const docId = query.docId;
+
+    if (!token) {
+      socket.close(4401, 'Unauthorized');
+      return;
+    }
+    const payload = parseDevToken(token);
+    if (!payload) {
+      socket.close(4401, 'Unauthorized');
+      return;
+    }
+    const userRow = getUser(db, payload.userId);
+    if (!userRow) {
+      socket.close(4401, 'Unauthorized');
+      return;
+    }
+
+    if (!docId) {
+      socket.close(4404, 'Missing docId');
+      return;
+    }
+    const docRow = getDocumentRow(db, docId);
+    if (!docRow) {
+      socket.close(4404, 'Document not found');
+      return;
+    }
+
+    const sub = joinDocRoom(socket, docId, userToWire(userRow), payload.deviceId, db);
+
+    socket.on('message', (_data) => {
+      // ws is receive-only for updates; client may send ping or hello
+    });
+
+    socket.on('close', () => {
+      leaveDocRoom(sub);
+    });
   });
 
   app.setNotFoundHandler((request, reply) => {

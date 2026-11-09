@@ -10,9 +10,9 @@ const opSchema = z.object({
   opId: z.string().min(1),
   deviceId: z.string().min(1),
   hlc: z.string().min(1),
-  entity: z.enum(['draft', 'lesson_progress', 'submission']),
+  entity: z.enum(['draft', 'lesson_progress', 'submission', 'doc_update']),
   entityId: z.string().min(1),
-  type: z.enum(['create', 'update', 'delete']).optional(),
+  type: z.enum(['create', 'update', 'delete', 'append']).optional(),
   baseRev: z.number().int().min(0).optional(),
   payload: z.unknown(),
 });
@@ -23,6 +23,7 @@ const pushBodySchema = z.object({
 
 const pullBodySchema = z.object({
   sinceSeq: z.number().int().min(0).nullable().optional(),
+  docCursors: z.record(z.string(), z.number().int().min(0)).optional(),
 });
 
 /**
@@ -66,7 +67,12 @@ export function registerSyncRoutes(app: FastifyInstance, ctx: SyncContext): void
 
   app.post('/api/sync/pull', { preHandler: auth }, async (request) => {
     const body = parseInput(pullBodySchema, request.body ?? {});
-    const response: SyncPullResponse = pullChanges(ctx, request.auth!.userId, body.sinceSeq ?? 0);
+    const response: SyncPullResponse = pullChanges(
+      ctx,
+      request.auth!.userId,
+      body.sinceSeq ?? 0,
+      body.docCursors,
+    );
     return response;
   });
 

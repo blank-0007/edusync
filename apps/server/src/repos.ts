@@ -89,6 +89,30 @@ export interface LessonProgressRow {
   last_opened_at: string;
 }
 
+/** A shared Yjs document plus its persisted snapshot (docs/CONTRACT.md §D3). */
+export interface DocumentRow {
+  id: string;
+  title: string;
+  course_id: string;
+  snapshot_b64: string;
+  state_vector_b64: string;
+  cursor: number;
+  update_count: number;
+  updated_at: string;
+}
+
+/** One durable per-document CRDT update in the op log (§D2). */
+export interface DocUpdateRow {
+  id: number;
+  doc_id: string;
+  seq: number;
+  op_id: string;
+  device_id: string;
+  author_user_id: string;
+  update_b64: string;
+  created_at: string;
+}
+
 export interface OpLogRow {
   op_id: string;
   user_id: string;
@@ -320,6 +344,29 @@ export function listSubmissionRows(db: DatabaseSync, studentId: string): Submiss
   return db
     .prepare('SELECT * FROM submissions WHERE student_id = ? ORDER BY server_received_at DESC, id ASC')
     .all(studentId) as unknown as SubmissionRow[];
+}
+
+export function getDocumentRow(db: DatabaseSync, id: string): DocumentRow | undefined {
+  return db.prepare('SELECT * FROM documents WHERE id = ?').get(id) as DocumentRow | undefined;
+}
+
+export function listDocumentRows(db: DatabaseSync): DocumentRow[] {
+  return db.prepare('SELECT * FROM documents ORDER BY id ASC').all() as unknown as DocumentRow[];
+}
+
+/** Updates for one document strictly after `afterSeq`, ascending, capped at `limit`. */
+export function listDocUpdateRows(
+  db: DatabaseSync,
+  docId: string,
+  afterSeq: number,
+  limit: number,
+): DocUpdateRow[] {
+  return db
+    .prepare(
+      `SELECT * FROM doc_updates WHERE doc_id = ? AND seq > ?
+        ORDER BY seq ASC LIMIT ?`,
+    )
+    .all(docId, afterSeq, limit) as unknown as DocUpdateRow[];
 }
 
 export function getOpLog(db: DatabaseSync, opId: string): OpLogRow | undefined {

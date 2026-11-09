@@ -16,7 +16,8 @@
     "e2e": "node --import tsx scripts/e2e-smoke.mjs",
     "demo": "bash scripts/demo.sh",
     "ui": "node --import tsx scripts/ui-verify.mjs",
-    "verify": "bash scripts/verify.sh"
+    "verify": "bash scripts/verify.sh",
+    "e2e:docs": "node --import tsx scripts/e2e-docs.mjs"
   },
   "devDependencies": {
     "playwright-core": "^1.49.1"

@@ -1,6 +1,6 @@
 # Running EduSync
 
-**Status: working MVP.** The local-first record-sync spine, the offline web app and the exactly-once submission path are implemented and verified end to end. Yjs document co-editing and the offline exam are the next phases (see [What's next](#whats-next)).
+**Status: Phase 2 Complete (CRDT Collaborative Documents).** Both the local-first record-sync spine (drafts, submissions with exactly-once idempotency) and Yjs collaborative documents (`d_group2` shared lab notes with WebSocket live presence and offline commutative merge) are implemented and verified end to end.
 
 The design pack (problem, solution, architecture, mockups) is in [`README.md`](README.md) and [`SPEC.md`](SPEC.md); the API contract is in [`docs/CONTRACT.md`](docs/CONTRACT.md).
 
@@ -21,11 +21,12 @@ Open <http://127.0.0.1:5173/?as=u_aarav&page=library>.
 |---|---|
 | `/?as=u_aarav&page=library` | student library, offline-ready chips, lesson reader |
 | `/?as=u_aarav&page=assignment` | autosaving assignment + exactly-once submit |
+| `/?as=u_aarav&page=doc` | collaborative shared document (`d_group2`) with Yjs CRDT + presence |
 | `/?as=u_aarav&page=sync` | Sync Center: durable queue, HLC per op, attempts, backoff, connection simulator |
 | `/?as=u_aarav&page=review` | Review Inbox: two-pane conflict diff, resolve mine/theirs |
 | `/?page=login` | seeded users: Aarav (student), Yuki (student), Dr. Priya (instructor) |
 
-Dev flags: `?as=<userId>` auto-login, `?page=library|assignment|sync|review|login`, `?offline=1` boot offline, `?fresh=1` wipe the local IndexedDB (useful for demos).
+Dev flags: `?as=<userId>` auto-login, `?page=library|assignment|doc|sync|review|login`, `?offline=1` boot offline, `?fresh=1` wipe the local IndexedDB (useful for demos).
 
 One-command acceptance run:
 

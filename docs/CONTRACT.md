@@ -178,3 +178,121 @@ Server unit tests must cover the merge ladder, dedupe, and pull cursor directly 
 ## 5. Out of scope for this phase (next phases)
 
 Yjs document co-editing + Conflict Inbox UI for docs, offline exam integrity (sealed packages, hash chains), service-worker app shell, WebSocket realtime presence, Docker/Postgres. Build the record-sync spine first; do not stub these with fake data.
+
+---
+
+# Addendum v0.2 — shared documents (Yjs CRDT)
+
+Phase 2 adds collaborative documents. Text documents are CRDTs (Yjs); the op-log spine is reused so
+offline document edits are durable, deduped and replayed exactly like record edits. **One protocol,
+two data classes**: records are server-validated facts (recorded in §2), documents are Yjs updates
+(merge is commutative, so no keystroke can be lost).
+
+## D1. Seed document
+
+`d_group2` — title `Lab 3 — membrane data (shared)`, course `c_bio201`, created by `u_priya`.
+Initial content (Yjs `Y.Text` named `content`, plain text, `\n` separated):
+
+```
+Lab 3 — membrane data (group 2)
+
+Protocol: pellet resuspended in NaCl, 25 °C, 10 min.
+Control: 0.15 M NaCl; test: 0.30 M NaCl; n = 3.
+Observation — 0.30 M NaCl, 10 min:
+cells shrank and the pellet cleared slowly in the first minute of centrifugation.
+Control (0.15 M NaCl): no volume change; absorbance stable at 0.42 ± 0.01.
+Conclusion: water crosses the membrane freely, so lysis depended on the osmotic gradient alone.
+```
+
+## D2. Document ops (same `/api/sync/push`)
+
+```jsonc
+{
+  "opId": "<ULID>", "deviceId": "<ULID>", "hlc": "<HLC>",
+  "entity": "doc_update", "entityId": "d_group2", "type": "append",
+  "baseRev": 0,
+  "payload": { "docId": "d_group2", "updateB64": "<base64 Yjs update>" }
+}
+```
+
+Server rules:
+
+1. Dedupe by `op_id` exactly like other ops (`duplicate` returns the original `serverRev`).
+2. Validate: doc exists and `Y.applyUpdate` succeeds (corrupt update -> `rejected`, never a 500).
+3. Assign a per-document monotonic `seq`; persist the update in `doc_updates`, then update the
+   document snapshot (`Y.encodeStateAsUpdate` -> base64) and store the state vector.
+4. Broadcast to every WebSocket subscriber of that document:
+   `{ "type": "doc_update", "docId", "seq", "updateB64", "authorUserId", "authorName", "authorDeviceId" }`.
+5. `serverRev` for a doc op = the new per-document `seq`.
+6. Result status: `applied | duplicate | rejected`.
+
+`GET /api/sync/state-hash` must additionally include, per document: `{ id, text, seq }`
+(`text` = `Y.Text('content').toString()`), sorted by id — this is the convergence assertion.
+
+## D3. Document catalog + snapshot
+
+```
+GET /api/docs
+  -> { docs: [{ id, title, courseId, updatedAt, updateCount }] }
+
+GET /api/docs/:id
+  -> { doc: { id, title, courseId, updatedAt, updateCount },
+       snapshotB64: "<base64 Yjs state update>",   // full state
+       cursor: number,                              // = latest per-doc seq included in snapshot
+       stateVectorB64: "<base64 Yjs state vector>" }
+```
+
+Client boot sequence for a document: `GET /api/docs/:id` -> `Y.applyUpdate(doc, snapshotB64)` ->
+set `docCursors[id] = cursor` -> pull (`§D4`) to catch up -> subscribe over WebSocket for live updates.
+When offline, load the last locally persisted snapshot from IndexedDB and replay any locally queued
+`doc_update` ops.
+
+## D4. Pull extension
+
+```
+POST /api/sync/pull
+  body { sinceSeq, docCursors?: { [docId]: number } }
+  -> { changes, conflicts, nextSeq, serverHlc,
+       docUpdates: [{ docId, seq, updateB64, authorUserId, authorDeviceId, createdAt }],
+       nextDocCursors: { [docId]: number } }
+```
+
+- `docUpdates` = updates with `seq > docCursors[docId]`, ascending, capped at 500 total.
+- `nextDocCursors` = the client's new cursors (max seq returned, else the requested cursor).
+- Clients must apply every returned update to their local `Y.Doc` (idempotent).
+
+## D5. WebSocket (live collaboration when online)
+
+`ws://127.0.0.1:8787/ws?token=<bearer token>&docId=d_group2`
+
+Client -> server:
+
+```jsonc
+{ "type": "hello", "docId": "d_group2" }        // subscribe
+{ "type": "ping" }                               // keepalive
+```
+
+Server -> client:
+
+```jsonc
+{ "type": "presence", "docId": "d_group2", "count": 2,
+  "members": [{ "userId": "u_aarav", "name": "Aarav Menon", "deviceId": "…" }] }
+{ "type": "doc_update", "docId": "d_group2", "seq": 7, "updateB64": "…",
+  "authorUserId": "u_yuki", "authorName": "Yuki Tanaka", "authorDeviceId": "…" }
+{ "type": "hello_ok", "docId": "d_group2", "cursor": 6 }
+```
+
+The WS is **receive-only** (updates are written through the durable op queue, never
+fire-and-forget). A client that is offline simply misses broadcasts and catches up via pull. Presence
+is computed from the live socket set and is best-effort.
+
+## D6. Acceptance additions (Lead runs `npm run e2e` + `npm run ui`)
+
+- Two devices edit disjoint paragraphs of `d_group2` while offline, then push in either order; both
+  converge byte-identically, **both edits are present**, and the server `state-hash` matches.
+- Replaying a `doc_update` op returns `duplicate` and does not advance the doc seq.
+- A corrupt `updateB64` is `rejected` without breaking the batch.
+- `GET /api/docs/:id` snapshot + pull catch-up reproduces the same text as a client that was online
+  the whole time.
+- UI: two browser contexts, offline edits in both, reconnect -> both editors show the merged text
+  and a "Collaborators" presence indicator; nothing typed is lost.

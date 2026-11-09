@@ -54,7 +54,7 @@ export interface Assignment {
   rubric: RubricCriterion[];
 }
 
-export type OpEntity = 'draft' | 'lesson_progress' | 'submission';
+export type OpEntity = 'draft' | 'lesson_progress' | 'submission' | 'doc_update';
 
 export interface DraftPayload {
   assignmentId: string;
@@ -80,7 +80,13 @@ export interface SubmissionPayload {
   clientSubmittedAt: string;
 }
 
-export type OpPayload = DraftPayload | LessonProgressPayload | SubmissionPayload;
+export interface DocUpdatePayload {
+  docId: string;
+  /** base64 of a Yjs update (Y.encodeStateAsUpdate delta). */
+  updateB64: string;
+}
+
+export type OpPayload = DraftPayload | LessonProgressPayload | SubmissionPayload | DocUpdatePayload;
 
 export interface Op {
   opId: string;
@@ -88,7 +94,8 @@ export interface Op {
   hlc: string;
   entity: OpEntity;
   entityId: string;
-  type: 'create' | 'update' | 'delete';
+  /** 'append' is used by CRDT document updates; record entities use create/update/delete. */
+  type: 'create' | 'update' | 'delete' | 'append';
   baseRev: number;
   payload: OpPayload;
 }
@@ -148,12 +155,70 @@ export interface ChangeRow {
   payload: DraftRecord | LessonProgressRecord | SubmissionRecord;
 }
 
+export interface SyncPullRequest {
+  sinceSeq: number;
+  /** Per-document cursors: the last per-doc seq the client has applied. */
+  docCursors?: Record<string, number>;
+}
+
+export interface DocSummary {
+  id: string;
+  title: string;
+  courseId: string;
+  updatedAt: string;
+  updateCount: number;
+}
+
+export interface DocSnapshotResponse {
+  doc: DocSummary;
+  /** base64 of a full Yjs state update. */
+  snapshotB64: string;
+  /** Latest per-document seq included in the snapshot. */
+  cursor: number;
+  stateVectorB64: string;
+}
+
+export interface DocUpdateRecord {
+  docId: string;
+  seq: number;
+  updateB64: string;
+  authorUserId: string;
+  authorDeviceId: string;
+  createdAt: string;
+}
+
 export interface SyncPullResponse {
   changes: ChangeRow[];
   conflicts: ConflictRecord[];
   nextSeq: number;
+  docUpdates: DocUpdateRecord[];
+  nextDocCursors: Record<string, number>;
   serverHlc: string;
 }
+
+/** WebSocket messages for live document collaboration (see docs/CONTRACT.md §D5). */
+export type DocWsClientMessage =
+  | { type: 'hello'; docId: string }
+  | { type: 'ping' };
+
+export interface DocWsPresenceMember {
+  userId: string;
+  name: string;
+  deviceId: string;
+}
+
+export type DocWsServerMessage =
+  | { type: 'hello_ok'; docId: string; cursor: number }
+  | { type: 'presence'; docId: string; count: number; members: DocWsPresenceMember[] }
+  | {
+      type: 'doc_update';
+      docId: string;
+      seq: number;
+      updateB64: string;
+      authorUserId: string;
+      authorName: string;
+      authorDeviceId: string;
+    };
 
 export interface ConflictRecord {
   id: string;
