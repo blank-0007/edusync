@@ -11,6 +11,12 @@ const root = createRoot(container);
 boot()
   .then((flags) => {
     root.render(<App flags={flags} />);
+
+    if ('serviceWorker' in navigator && !window.location.search.includes('fresh=1')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
   })
   .catch((error: unknown) => {
     console.error('[edusync] boot failed', error);

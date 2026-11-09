@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import * as Y from 'yjs';
 import { HybridClock, ulid } from '@edusync/protocol';
 import { buildApp } from '../src/app';
-import { clearDocCache } from '../src/docs';
+import { clearDocCache, docText } from '../src/docs';
 
 const b64 = (u8: Uint8Array) => Buffer.from(u8).toString('base64');
 const unb64 = (s: string) => new Uint8Array(Buffer.from(s, 'base64'));
@@ -178,4 +178,109 @@ test('corrupt doc update is rejected gracefully without breaking batch', async (
   });
   assert.equal(res.statusCode, 200);
   assert.equal(res.json<{ results: { status: string }[] }>().results[0].status, 'rejected');
+});
+
+test('two clients push doc updates in different orders and converge to the same text', async (t) => {
+  clearDocCache();
+  const appA = buildApp({ dbPath: ':memory:' });
+  const appB = buildApp({ dbPath: ':memory:' });
+  t.after(async () => {
+    await appA.close();
+    await appB.close();
+  });
+
+  const loginA = await appA.inject({
+    method: 'POST',
+    url: '/api/auth/login',
+    payload: { userId: 'u_aarav', deviceId: 'dev_a', platform: 'test' },
+  });
+  const tokenA = loginA.json<{ token: string }>().token;
+
+  const loginB = await appB.inject({
+    method: 'POST',
+    url: '/api/auth/login',
+    payload: { userId: 'u_yuki', deviceId: 'dev_b', platform: 'test' },
+  });
+  const tokenB = loginB.json<{ token: string }>().token;
+
+  // Prepare offline updates from base snapshot
+  const snapRes = await appA.inject({
+    method: 'GET',
+    url: '/api/docs/d_group2',
+    headers: { authorization: `Bearer ${tokenA}` },
+  });
+  const snap = snapRes.json<{ snapshotB64: string }>();
+
+  const docAlice = new Y.Doc();
+  Y.applyUpdate(docAlice, unb64(snap.snapshotB64));
+  const docBob = new Y.Doc();
+  Y.applyUpdate(docBob, unb64(snap.snapshotB64));
+
+  const updatesAlice: string[] = [];
+  const updatesBob: string[] = [];
+  docAlice.on('update', (u: Uint8Array) => updatesAlice.push(b64(u)));
+  docBob.on('update', (u: Uint8Array) => updatesBob.push(b64(u)));
+
+  docAlice.getText('content').insert(0, '[Aarav Note] ');
+  docBob.getText('content').insert(docBob.getText('content').length, ' [Yuki Note]');
+
+  const clockA = new HybridClock('dev_a');
+  const clockB = new HybridClock('dev_b');
+
+  const opA = {
+    opId: ulid(),
+    deviceId: 'dev_a',
+    hlc: clockA.now(),
+    entity: 'doc_update' as const,
+    entityId: 'd_group2',
+    type: 'update' as const,
+    baseRev: 0,
+    payload: { docId: 'd_group2', updateB64: updatesAlice[0] },
+  };
+
+  const opB = {
+    opId: ulid(),
+    deviceId: 'dev_b',
+    hlc: clockB.now(),
+    entity: 'doc_update' as const,
+    entityId: 'd_group2',
+    type: 'update' as const,
+    baseRev: 0,
+    payload: { docId: 'd_group2', updateB64: updatesBob[0] },
+  };
+
+  // Push Order 1 on appA: A then B
+  await appA.inject({
+    method: 'POST',
+    url: '/api/sync/push',
+    headers: { authorization: `Bearer ${tokenA}` },
+    payload: { ops: [opA] },
+  });
+  await appA.inject({
+    method: 'POST',
+    url: '/api/sync/push',
+    headers: { authorization: `Bearer ${tokenA}` },
+    payload: { ops: [opB] },
+  });
+
+  // Push Order 2 on appB: B then A (reversed order)
+  await appB.inject({
+    method: 'POST',
+    url: '/api/sync/push',
+    headers: { authorization: `Bearer ${tokenB}` },
+    payload: { ops: [opB] },
+  });
+  await appB.inject({
+    method: 'POST',
+    url: '/api/sync/push',
+    headers: { authorization: `Bearer ${tokenB}` },
+    payload: { ops: [opA] },
+  });
+
+  const textA = docText(appA.db, 'd_group2');
+  const textB = docText(appB.db, 'd_group2');
+
+  assert.equal(textA, textB, 'Yjs document CRDT must converge to identical state regardless of delivery order');
+  assert.ok(textA.includes('[Aarav Note]'));
+  assert.ok(textA.includes('[Yuki Note]'));
 });

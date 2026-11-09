@@ -130,7 +130,9 @@ class SyncEngine {
   private docSource: DocSyncSource | null = null;
 
   constructor() {
-    this.clock = new HybridClock('web');
+    const auth = getAuthState();
+    this.deviceId = auth.deviceId || 'web';
+    this.clock = new HybridClock(this.deviceId);
     this.snapshot = this.buildSnapshot();
   }
 

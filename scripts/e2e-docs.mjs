@@ -218,11 +218,12 @@ async function main() {
     console.log('\nsession: doc-op dedupe and corrupt-update rejection');
     const firstOp = docOp(a, editorA.pending[0]);
     const applied = await pushOps(a, [firstOp]);
+    const cursorAfterApplied = (await api(`/api/docs/${DOC_ID}`, { token: a.token })).body.cursor;
     const replayed = await pushOps(a, [firstOp]);
     check('first doc op applies', applied.body.results?.[0]?.status === 'applied', JSON.stringify(applied.body).slice(0, 200));
     check('replaying the same doc opId is a duplicate', replayed.body.results?.[0]?.status === 'duplicate', JSON.stringify(replayed.body).slice(0, 200));
     const cursorAfterReplay = (await api(`/api/docs/${DOC_ID}`, { token: a.token })).body.cursor;
-    check('duplicate doc op does not advance the document cursor', cursorAfterReplay === snapAfter.body.cursor, `${cursorAfterReplay} vs ${snapAfter.body.cursor}`);
+    check('duplicate doc op does not advance the document cursor', cursorAfterReplay === cursorAfterApplied, `${cursorAfterReplay} vs ${cursorAfterApplied}`);
 
     const corrupt = docOp(a, 'not-a-valid-yjs-update');
     const corruptRes = await pushOps(a, [corrupt]);
@@ -269,7 +270,7 @@ async function main() {
   } catch (err) {
     failures++;
     console.error('\n\x1b[31mFATAL\x1b[0m', err?.message ?? err);
-    if (server?.log) console.error(server.log().slice(-1500));
+    if (server?.log) console.error(server.log().slice(-4000));
   } finally {
     if (server) await stopServer(server.child);
     rmSync(dir, { recursive: true, force: true });

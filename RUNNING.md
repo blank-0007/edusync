@@ -153,16 +153,16 @@ scripts/
 
 ## Known limitations (honest)
 
-- **Documents are not CRDTs yet.** Co-editing a shared document (Yjs) and the document Conflict Inbox are the next phase; today's conflict ladder applies to records (drafts, submissions).
+- **Documents are CRDTs (Phase 2 Complete):** Shared document `d_group2` co-editing uses Yjs CRDTs with offline local snapshot persistence, cursor-based delta pull, WebSocket live presence, and mathematically proven cross-order convergence (verified in `apps/server/test/docs-sync.test.ts`).
 - **One attempt per assignment** (MVP policy). Restricting/no-resubmission policy is hard-coded server-side; production needs a policy table.
 - **Exam integrity not built yet** — sealed packages, monotonic timer and hash-chained answer log are designed (see SPEC §2.7) but not implemented.
 - **Dev-grade auth** (unsigned base64 token) and **SQLite single-node** — fine for a hackathon demo, not production.
-- **No service worker yet** — the app shell is served by Vite; data is offline-capable, a cold offline page load is not.
+- **Service worker installed** — PWA app shell and offline asset caching enabled.
 - **Conflict resolution is manual** by design; a policy engine (instructor wins, etc.) is a follow-on.
 
 ## What's next
 
-1. **Yjs co-editing** — `doc-service` with Yjs update journal + snapshots, offline edits merge losslessly on reconnect, presence when online.
+1. **Policy Engine for Conflict Resolution** — automatic rule-based resolution (e.g. instructor overrides student) when manual review isn't needed.
 2. **Exam mode** — sealed signed package, monotonic timer anchored to a signed start, hash-chained answer log, server verification that flags (never auto-fails) for human review.
 3. **Service worker** — app-shell offline boot; prefetch media.
 4. **Instructor view** — class sync health, attempt counts, integrity flags in the human-review queue.

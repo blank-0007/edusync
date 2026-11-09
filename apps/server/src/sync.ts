@@ -544,8 +544,23 @@ export function submitOnce(ctx: SyncContext, actor: Actor, payload: SubmissionPa
     serverReceivedAt,
     status: 'submitted',
   };
+  // Forensic checks: timestamp skew & deadline evaluation for instructor review
+  const assignment = getAssignmentRow(db, payload.assignmentId);
+  const clientMs = new Date(payload.clientSubmittedAt).getTime();
+  const serverMs = Date.now();
+  const skewMs = Math.abs(serverMs - clientMs);
+  const timestampAnomalous = Number.isNaN(clientMs) || skewMs > 6 * 60 * 60 * 1000;
+  const isLate = assignment ? serverMs > new Date(assignment.due_at).getTime() : false;
+
   appendChange(db, actor.userId, 'submission', payload.submissionId, 1, record);
-  appendAudit(db, actor.userId, 'submission.create', `submission:${payload.submissionId}`, null, record);
+  appendAudit(
+    db,
+    actor.userId,
+    'submission.create',
+    `submission:${payload.submissionId}`,
+    null,
+    { ...record, isLate, timestampAnomalous, skewMs },
+  );
   return { kind: 'created', submission: record, rev: 1 };
 }
 

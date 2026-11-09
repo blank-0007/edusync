@@ -55,6 +55,11 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   // Register WebSocket plugin
   app.register(fastifyWebsocket);
 
+  // Simple sliding-window rate limiter on /api/sync/push to protect the reconciliation engine
+  const pushTimestamps = new Map<string, number[]>();
+  const PUSH_LIMIT = 500;
+  const WINDOW_MS = 60_000;
+
   // One encapsulated plugin scope keeps CORS headers, error envelope and routes together.
   app.register(async (instance) => {
     await instance.register(cors, {
@@ -64,6 +69,22 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       maxAge: 86400,
     });
 
+    instance.addHook('onRequest', async (request, reply) => {
+      if (request.url === '/api/sync/push' && request.method === 'POST') {
+        const clientKey = request.ip || 'unknown';
+        const now = Date.now();
+        const timestamps = (pushTimestamps.get(clientKey) ?? []).filter((t) => now - t < WINDOW_MS);
+        if (timestamps.length >= PUSH_LIMIT) {
+          return reply.code(429).send({
+            error: 'rate_limited',
+            message: 'Too many sync push requests. Please retry shortly.',
+          });
+        }
+        timestamps.push(now);
+        pushTimestamps.set(clientKey, timestamps);
+      }
+    });
+
     registerHealthRoutes(instance, ctx);
     registerAuthRoutes(instance, ctx);
     registerCatalogRoutes(instance, ctx);
@@ -71,47 +92,47 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     registerSyncRoutes(instance, ctx);
     registerConflictRoutes(instance, ctx);
     registerDocRoutes(instance, ctx);
-  });
 
-  // WebSocket endpoint for collaborative document rooms
-  app.get('/ws', { websocket: true }, (socket, request) => {
-    const query = request.query as Record<string, string | undefined>;
-    const token = query.token;
-    const docId = query.docId;
+    // WebSocket endpoint for collaborative document rooms
+    instance.get('/ws', { websocket: true }, (socket, request) => {
+      const query = request.query as Record<string, string | undefined>;
+      const token = query.token;
+      const docId = query.docId;
 
-    if (!token) {
-      socket.close(4401, 'Unauthorized');
-      return;
-    }
-    const payload = parseDevToken(token);
-    if (!payload) {
-      socket.close(4401, 'Unauthorized');
-      return;
-    }
-    const userRow = getUser(db, payload.userId);
-    if (!userRow) {
-      socket.close(4401, 'Unauthorized');
-      return;
-    }
+      if (!token) {
+        socket.close(4401, 'Unauthorized');
+        return;
+      }
+      const payload = parseDevToken(token);
+      if (!payload) {
+        socket.close(4401, 'Unauthorized');
+        return;
+      }
+      const userRow = getUser(db, payload.userId);
+      if (!userRow) {
+        socket.close(4401, 'Unauthorized');
+        return;
+      }
 
-    if (!docId) {
-      socket.close(4404, 'Missing docId');
-      return;
-    }
-    const docRow = getDocumentRow(db, docId);
-    if (!docRow) {
-      socket.close(4404, 'Document not found');
-      return;
-    }
+      if (!docId) {
+        socket.close(4404, 'Missing docId');
+        return;
+      }
+      const docRow = getDocumentRow(db, docId);
+      if (!docRow) {
+        socket.close(4404, 'Document not found');
+        return;
+      }
 
-    const sub = joinDocRoom(socket, docId, userToWire(userRow), payload.deviceId, db);
+      const sub = joinDocRoom(socket, docId, userToWire(userRow), payload.deviceId, db);
 
-    socket.on('message', (_data) => {
-      // ws is receive-only for updates; client may send ping or hello
-    });
+      socket.on('message', (_data) => {
+        // ws is receive-only for updates; client may send ping or hello
+      });
 
-    socket.on('close', () => {
-      leaveDocRoom(sub);
+      socket.on('close', () => {
+        leaveDocRoom(sub);
+      });
     });
   });
 

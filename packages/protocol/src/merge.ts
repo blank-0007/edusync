@@ -18,10 +18,11 @@ export interface MergeOutcome<T> {
 }
 
 /**
- * L0: identical values -> no-op.
- * L2: one side is causally later by HLC -> that side wins, the other is retained as history.
- * L4: concurrent + different values -> HLC winner is applied, but the pair is reported as contested
- *     so the caller can freeze both versions and open a Conflict Inbox item (no silent loss).
+ * L0: identical values and stamps -> true no-op.
+ * L1: identical values, newer stamp -> idempotent advance (subsumed in L0 for wire).
+ * L2: sequential edit (base matches current) -> winner applied cleanly.
+ * L3: out-of-order delivery (base is newer than current) -> newer HLC applied cleanly.
+ * L4: concurrent + different values -> HLC winner applied, both versions retained in Conflict Inbox.
  */
 export function mergeField<T extends string | number | boolean | null>(
   incoming: Field<T>,
@@ -58,7 +59,7 @@ export function mergeField<T extends string | number | boolean | null>(
     };
   }
 
-  // Client saw a newer value than the server holds (out-of-order delivery): keep the newer one.
+  // L3: Client saw a newer value than the server holds (out-of-order delivery): keep the newer one.
   const winner = order >= 0 ? incoming : current;
-  return { level: 'L2', winner, loser: order >= 0 ? current : incoming, contested: false, reason: 'out-of-order delivery' };
+  return { level: 'L3', winner, loser: order >= 0 ? current : incoming, contested: false, reason: 'out-of-order delivery' };
 }
