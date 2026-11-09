@@ -2512,8 +2512,75 @@ p {
   }
 }
 
+/* -------------------------------------------------- Accessibility Enhancements */
+
+/* Universal focus visibility fallback */
+:where(a:any-link, button, input, textarea, select, [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--teal, #0E7C6B);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode (Forced Colors) */
+@media (forced-colors: active) {
+  :where(a:any-link, button, input, textarea, select, [tabindex="0"]):focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+  .pill, .btn {
+    forced-color-adjust: none;
+  }
+}
+
+/* Skip link to bypass repeated header/sidebar navigation */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: 16px;
+  z-index: 10000;
+  padding: 10px 16px;
+  background: var(--navy-900, #0F1B2D);
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  border: 2px solid var(--teal, #0E7C6B);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 16px;
+  outline: 2px solid var(--teal, #0E7C6B);
+  outline-offset: 2px;
+}
+
+/* Screen reader only utility following WCAG standard */
+.visually-hidden:where(:not(:focus-within, :active)),
+.sr-only:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Minimum touch target size on coarse pointers (WCAG 2.5.8) */
+@media (pointer: coarse) {
+  button, .btn, .nav-item, .lesson-card, .account-card, .segment, .icon-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

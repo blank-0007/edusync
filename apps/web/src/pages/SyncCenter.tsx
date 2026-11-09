@@ -156,14 +156,15 @@ export function SyncCenterPage({ navigate }: SyncCenterPageProps) {
             ) : (
               <div className="table-wrap">
                 <table className="table queue-table">
+                  <caption className="visually-hidden">Pending synchronization operations queue</caption>
                   <thead>
                     <tr>
-                      <th className="col-opid">OpID (ULID)</th>
-                      <th className="col-entity">Entity</th>
-                      <th className="col-type">Type</th>
-                      <th className="col-hlc">HLC</th>
-                      <th className="col-att">Att.</th>
-                      <th className="col-status">Status</th>
+                      <th scope="col" className="col-opid">OpID (ULID)</th>
+                      <th scope="col" className="col-entity">Entity</th>
+                      <th scope="col" className="col-type">Type</th>
+                      <th scope="col" className="col-hlc">HLC</th>
+                      <th scope="col" className="col-att">Att.</th>
+                      <th scope="col" className="col-status">Status</th>
                     </tr>
                   </thead>
                   <tbody>

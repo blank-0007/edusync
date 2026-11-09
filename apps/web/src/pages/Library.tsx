@@ -288,11 +288,18 @@ export function LibraryPage({ navigate }: LibraryPageProps) {
             </div>
           </div>
           <div className="hero-right">
-            <div className="hero-progress-label">
+            <div className="hero-progress-label" id="lesson-progress-label">
               <span>Lesson progress</span>
               <span>{continuePercent}%</span>
             </div>
-            <div className="meter hero-meter">
+            <div
+              className="meter hero-meter"
+              role="progressbar"
+              aria-labelledby="lesson-progress-label"
+              aria-valuenow={continuePercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <span style={{ width: `${Math.max(2, continuePercent)}%` }} />
             </div>
             <button type="button" className="btn hero-resume" onClick={() => void handleOpenLesson(continueLesson)}>

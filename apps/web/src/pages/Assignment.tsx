@@ -473,7 +473,7 @@ export function AssignmentPage({ navigate }: AssignmentPageProps) {
                 Q3
               </span>
               <div className="prompt-content">
-                <p className="prompt-text">{assignment.prompt}</p>
+                <p className="prompt-text" id="assignment-prompt-text">{assignment.prompt}</p>
                 <div className="prompt-meta">
                   <span className="pill grey sm">{assignment.points} pts</span>
                   <span className="pill grey sm">Rubric · {assignment.rubric.length} criteria</span>
@@ -485,6 +485,9 @@ export function AssignmentPage({ navigate }: AssignmentPageProps) {
             </div>
 
             <div className="editor-shell">
+              <label htmlFor="assignment-answer" className="visually-hidden">
+                Your assignment answer
+              </label>
               <div className="editor-toolbar" aria-hidden="true">
                 <span className="toolbar-btn">B</span>
                 <span className="toolbar-btn italic">I</span>
@@ -497,7 +500,7 @@ export function AssignmentPage({ navigate }: AssignmentPageProps) {
                   <Icon name="fileText" size={13} />
                 </span>
                 <span className="toolbar-spacer" />
-                <span className="tiny muted">
+                <span className="tiny muted" id="assignment-word-count">
                   {wordCount(answer)} words · {answer.length.toLocaleString()} characters
                 </span>
                 <span className={`pill ${submitted ? 'green' : 'teal'} sm`}>
@@ -506,13 +509,14 @@ export function AssignmentPage({ navigate }: AssignmentPageProps) {
                 </span>
               </div>
               <textarea
+                id="assignment-answer"
                 className={cls('editor', submitted && 'editor-readonly')}
                 value={answer}
                 onChange={(event) => handleChange(event.target.value)}
                 onBlur={() => flushPendingAutosave()}
                 readOnly={submitted}
                 placeholder="Explain how the Na⁺/K⁺ ATPase establishes the resting membrane potential, and predict the effect of ouabain…"
-                aria-label="Your assignment answer"
+                aria-describedby="assignment-prompt-text assignment-word-count"
                 spellCheck
               />
               <div className="editor-status" aria-live="polite">

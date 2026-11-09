@@ -210,6 +210,9 @@ export function DocumentPage({ navigate }: DocumentPageProps) {
             </div>
 
             <div className="editor-shell">
+              <label htmlFor="doc-content-textarea" className="visually-hidden">
+                Shared collaborative document content
+              </label>
               <div className="editor-toolbar" aria-hidden="true">
                 <span className="toolbar-btn">B</span>
                 <span className="toolbar-btn italic">I</span>
@@ -219,7 +222,7 @@ export function DocumentPage({ navigate }: DocumentPageProps) {
                   <Icon name="fileText" size={13} />
                 </span>
                 <span className="toolbar-spacer" />
-                <span className="tiny muted">
+                <span className="tiny muted" id="doc-word-count">
                   {wordCount(snap.text)} words · {snap.text.length.toLocaleString()} characters
                 </span>
                 <span className="pill teal sm">
@@ -229,17 +232,18 @@ export function DocumentPage({ navigate }: DocumentPageProps) {
               </div>
 
               <textarea
+                id="doc-content-textarea"
                 ref={textareaRef}
                 className="editor"
                 value={snap.text}
                 onChange={handleChange}
                 placeholder="Start typing shared document notes…"
-                aria-label="Shared document content"
+                aria-describedby="doc-word-count doc-status-line"
                 spellCheck
                 rows={16}
               />
 
-              <div className="editor-status" aria-live="polite">
+              <div className="editor-status" id="doc-status-line" aria-live="polite">
                 <span className="status-check" aria-hidden="true">
                   <Icon name="checkCircle" size={13} />
                 </span>

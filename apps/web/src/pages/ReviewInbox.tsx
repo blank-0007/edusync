@@ -280,7 +280,7 @@ export function ReviewInboxPage({ navigate }: ReviewInboxPageProps) {
                   </Banner>
 
                   <div className="diff-panes">
-                    <div className="diff-pane diff-pane-left">
+                    <div className="diff-pane diff-pane-left" aria-label="Version A held on server">
                       <div className="diff-pane-head">
                         <span className="diff-side-label">Version A · left</span>
                         <span className="tiny muted">{selected.leftLabel}</span>
@@ -288,7 +288,7 @@ export function ReviewInboxPage({ navigate }: ReviewInboxPageProps) {
                           <span className="pill outline sm mono">{parseRev(selected.leftJson)}</span>
                         ) : null}
                       </div>
-                      <pre className="diff-pane-body mono">
+                      <pre className="diff-pane-body mono" aria-label="Content of Version A">
                         {diff.left.map((line, index) => (
                           <span key={index} className={cls('diff-line', line.kind === 'del' && 'del')}>
                             {line.text}
@@ -297,7 +297,7 @@ export function ReviewInboxPage({ navigate }: ReviewInboxPageProps) {
                         ))}
                       </pre>
                     </div>
-                    <div className="diff-pane diff-pane-right">
+                    <div className="diff-pane diff-pane-right" aria-label="Version B incoming edit">
                       <div className="diff-pane-head">
                         <span className="diff-side-label">Version B · right</span>
                         <span className="tiny muted">{selected.rightLabel}</span>
@@ -305,7 +305,7 @@ export function ReviewInboxPage({ navigate }: ReviewInboxPageProps) {
                           <span className="pill outline sm mono">{parseRev(selected.rightJson)}</span>
                         ) : null}
                       </div>
-                      <pre className="diff-pane-body mono">
+                      <pre className="diff-pane-body mono" aria-label="Content of Version B">
                         {diff.right.map((line, index) => (
                           <span key={index} className={cls('diff-line', line.kind === 'add' && 'add')}>
                             {line.text}
@@ -333,6 +333,7 @@ export function ReviewInboxPage({ navigate }: ReviewInboxPageProps) {
                         className="btn"
                         onClick={() => void handleResolve('theirs')}
                         disabled={!canResolve || busy !== null || selected.status !== 'open'}
+                        aria-label="Keep version A: earlier version on the server"
                         title="Keep version A (the earlier version on the server)"
                       >
                         <Icon name="check" size={14} />
@@ -343,6 +344,7 @@ export function ReviewInboxPage({ navigate }: ReviewInboxPageProps) {
                         className="btn teal"
                         onClick={() => void handleResolve('mine')}
                         disabled={!canResolve || busy !== null || selected.status !== 'open'}
+                        aria-label="Keep version B: incoming edit"
                         title="Keep version B (the incoming edit)"
                       >
                         <Icon name="check" size={14} />

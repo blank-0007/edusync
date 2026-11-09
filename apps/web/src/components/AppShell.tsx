@@ -64,6 +64,10 @@ export function AppShell({ page, onNavigate, children }: AppShellProps) {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
+    document.title = `${PAGE_TITLES[page]} | EduSync`;
+  }, [page]);
+
+  useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
@@ -95,6 +99,9 @@ export function AppShell({ page, onNavigate, children }: AppShellProps) {
 
   return (
     <div className="app-shell">
+      <a href="#main" className="skip-link">
+        Skip to main content
+      </a>
       <aside className="sidebar" aria-label="EduSync navigation">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">
@@ -185,23 +192,23 @@ export function AppShell({ page, onNavigate, children }: AppShellProps) {
               </span>
               <span className="user-chip-name">{auth.user?.name ?? 'Not signed in'}</span>
             </span>
-            <span className="sr-only" aria-live="polite">
-              {openConflicts === 1
-                ? '1 conflict needs review'
-                : openConflicts > 1
-                  ? `${openConflicts} conflicts need review`
-                  : ''}
-              {sync.pending === 1
-                ? '1 operation queued'
-                : sync.pending > 1
-                  ? `${sync.pending} operations queued`
-                  : ''}
-            </span>
+            <div className="visually-hidden" aria-live="polite" aria-atomic="true">
+              {openConflicts > 0 ? `${openConflicts} conflict${openConflicts === 1 ? '' : 's'} need review in the Review Inbox. ` : ''}
+              {sync.simulateOffline
+                ? 'Device is offline (simulated). Changes are saved locally and will sync when reconnecting.'
+                : !sync.browserOnline || sync.state === 'offline'
+                  ? 'Device is offline. Changes are saved locally.'
+                  : sync.state === 'syncing'
+                    ? `Syncing ${sync.pending} queued operation${sync.pending === 1 ? '' : 's'} with server.`
+                    : sync.state === 'degraded'
+                      ? 'Network degraded. Retrying in background.'
+                      : 'All changes synchronized.'}
+            </div>
           </div>
           <span className="sr-only" data-now={now} />
         </header>
 
-        <main className="page-scroll" id="main">
+        <main className="page-scroll" id="main" tabIndex={-1}>
           {children}
         </main>
       </div>
