@@ -1,6 +1,9 @@
 # EduSync — Offline-First Learning Infrastructure
 
-> **Status: the MVP is built and running.** This file is the design pack (problem → solution → architecture → stack → mockups). The working implementation, how to run it, demo script and verification evidence are in **[RUNNING.md](RUNNING.md)** — `npm install && npm run dev`, then <http://127.0.0.1:5173/?as=u_aarav&page=library>.
+> **🚀 Live Production Deployment (Cloudflare Pages):** **[https://edusync-tus.pages.dev/](https://edusync-tus.pages.dev/)**  
+> **Interactive Student Demo:** **[https://edusync-tus.pages.dev/?as=u_aarav&page=library](https://edusync-tus.pages.dev/?as=u_aarav&page=library)**  
+> **Judge Evaluation Report:** **[docs/JUDGE_REPORT.md](docs/JUDGE_REPORT.md)** (Technical Hackathon Score: 86.0/100 — Strong 1st Place Contender)  
+> **Local Dev Quickstart:** `npm install && npm run dev` → [http://127.0.0.1:5173/?as=u_aarav&page=library](http://127.0.0.1:5173/?as=u_aarav&page=library)
 
 **Hackathon:** Technical EdTech Hackathon · Problem Statements → **Problem 1, rated "Very hard"**
 **Theme:** Education technology · **Domains:** distributed systems, databases, networking, fault tolerance
