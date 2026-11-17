@@ -55,7 +55,7 @@ def build_hackathon_presentation(output_path):
         p.font.bold = True
         p.font.color.rgb = NAVY
 
-    def add_footer(slide, current_page, total_pages=9):
+    def add_footer(slide, current_page, total_pages=10):
         fbox = slide.shapes.add_textbox(Inches(0.8), Inches(7.05), Inches(11.733), Inches(0.35))
         ftf = fbox.text_frame
         ftf.word_wrap = True
@@ -292,36 +292,46 @@ def build_hackathon_presentation(output_path):
     add_footer(s2, 2)
 
     # =========================================================================
-    # SLIDE 3: Visual Pipeline Diagram (EMBEDDED IMAGE 1)
+    # SLIDE 3: Visual Pipeline Diagram (EMBEDDED 3D IMAGE 1)
     # =========================================================================
     s3 = prs.slides.add_slide(blank_layout)
-    add_header(s3, "The Data Synchronization Pipeline (Visual Flowchart)")
+    add_header(s3, "The Data Synchronization Pipeline (Visual Flowchart)", category="DATA PIPELINE")
 
-    # Embed generated Pipeline Diagram Image
-    pipe_img = 'assets/pipeline-diagram.png'
+    pipe_img = 'assets/pipeline-3d.jpg' if os.path.exists('assets/pipeline-3d.jpg') else 'assets/pipeline-diagram.png'
     if os.path.exists(pipe_img):
-        s3.shapes.add_picture(pipe_img, Inches(0.8), Inches(1.4), width=Inches(11.733))
+        s3.shapes.add_picture(pipe_img, Inches(1.566), Inches(1.22), width=Inches(10.2))
 
-    add_footer(s3, 3)
+    add_footer(s3, 3, 10)
 
     # =========================================================================
     # SLIDE 4: System Architecture Diagram (EMBEDDED IMAGE 2)
     # =========================================================================
     s4 = prs.slides.add_slide(blank_layout)
-    add_header(s4, "System Architecture: End-to-End Layers (Visual Diagram)")
+    add_header(s4, "System Architecture: End-to-End Layers (Visual Diagram)", category="SYSTEM ARCHITECTURE")
 
-    # Embed generated Architecture Diagram Image
     arch_img = 'assets/architecture-diagram.png'
     if os.path.exists(arch_img):
-        s4.shapes.add_picture(arch_img, Inches(0.8), Inches(1.4), width=Inches(11.733))
+        s4.shapes.add_picture(arch_img, Inches(1.566), Inches(1.22), width=Inches(10.2))
 
-    add_footer(s4, 4)
+    add_footer(s4, 4, 10)
 
     # =========================================================================
-    # SLIDE 5: How Our Project Looks — Course Library & Offline Writing
+    # SLIDE 5: The Conflict Resolution Ladder (EMBEDDED 3D IMAGE 3)
+    # =========================================================================
+    s5_ladder = prs.slides.add_slide(blank_layout)
+    add_header(s5_ladder, "Conflict Resolution Ladder: Smart Merging & Zero Data Loss", category="MULTI-DEVICE CONFLICT RESOLUTION")
+
+    ladder_img = 'assets/conflict-ladder-3d.jpg'
+    if os.path.exists(ladder_img):
+        s5_ladder.shapes.add_picture(ladder_img, Inches(1.566), Inches(1.22), width=Inches(10.2))
+
+    add_footer(s5_ladder, 5, 10)
+
+    # =========================================================================
+    # SLIDE 6: How Our Project Looks — Course Library & Offline Writing
     # =========================================================================
     s5 = prs.slides.add_slide(blank_layout)
-    add_header(s5, "How Our Project Looks: Offline Library & Writing")
+    add_header(s5, "How Our Project Looks: Offline Library & Writing", category="REAL-WORLD UI WALKTHROUGH")
 
     top5 = Inches(1.45)
     shot_w = Inches(5.7)
@@ -390,13 +400,13 @@ def build_hackathon_presentation(output_path):
         r.font.bold = False
         r.font.color.rgb = TEXT_MUTED
 
-    add_footer(s5, 5)
+    add_footer(s5, 6, 10)
 
     # =========================================================================
-    # SLIDE 6: How Our Project Looks — Sync Center & Conflict Diff
+    # SLIDE 7: How Our Project Looks — Sync Center & Conflict Diff
     # =========================================================================
     s6 = prs.slides.add_slide(blank_layout)
-    add_header(s6, "How Our Project Looks: Sync Center & Conflict Diff")
+    add_header(s6, "How Our Project Looks: Sync Center & Conflict Diff", category="REAL-WORLD UI WALKTHROUGH")
 
     # Left: Sync Center with connection simulator
     s6.shapes.add_picture('docs/shots/06-sync-center-queued.png', Inches(0.8), top5, width=shot_w)
@@ -460,7 +470,7 @@ def build_hackathon_presentation(output_path):
         r.font.bold = False
         r.font.color.rgb = TEXT_MUTED
 
-    add_footer(s6, 6)
+    add_footer(s6, 7, 10)
 
     # =========================================================================
     # SLIDE 7: Simplified Tech Stack (Plain-English with Icons)
@@ -564,13 +574,13 @@ def build_hackathon_presentation(output_path):
             r.font.bold = False
             r.font.color.rgb = TEXT_MUTED
 
-    add_footer(s7, 7)
+    add_footer(s7, 8, 10)
 
     # =========================================================================
-    # SLIDE 8: Inclusivity, Verification & Live Links for Judges
+    # SLIDE 9: Inclusivity, Verification & Live Links for Judges
     # =========================================================================
     s8 = prs.slides.add_slide(blank_layout)
-    add_header(s8, "Inclusivity, Verification & Live Project Links")
+    add_header(s8, "Inclusivity, Verification & Live Project Links", category="EVIDENCE & VERIFICATION")
 
     left_w8 = Inches(6.0)
     top8 = Inches(1.5)
@@ -660,13 +670,13 @@ def build_hackathon_presentation(output_path):
     gp2.font.color.rgb = TEXT_DARK
     gp2.space_before = Pt(4)
 
-    add_footer(s8, 8)
+    add_footer(s8, 9, 10)
 
     # =========================================================================
-    # SLIDE 9: Conclusion & Summary (Kaushal)
+    # SLIDE 10: Conclusion & Summary (Kaushal)
     # =========================================================================
     s9 = prs.slides.add_slide(blank_layout)
-    add_header(s9, "Conclusion & Summary: Education for Everyone")
+    add_header(s9, "Conclusion & Summary: Education for Everyone", category="IMPACT & SUMMARY")
 
     # Big Center Banner
     banner_c = create_card(s9, Inches(0.8), Inches(1.5), Inches(11.733), Inches(1.3), bg_color=TEAL_LIGHT, border_color=TEAL, border_width=2)
@@ -754,7 +764,7 @@ def build_hackathon_presentation(output_path):
     qp2.alignment = PP_ALIGN.CENTER
     qp2.space_before = Pt(4)
 
-    add_footer(s9, 9)
+    add_footer(s9, 10, 10)
 
     prs.save(output_path)
     print(f"✅ Full Hackathon PowerPoint saved to {output_path}")
