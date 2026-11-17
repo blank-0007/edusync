@@ -26,59 +26,61 @@
     display: flex;
     flex-direction: column;
   }
-  .sih-header {
-    padding: 18px 45px 12px 45px;
+  .header-bar {
+    padding: 20px 48px 14px 48px;
+    border-bottom: 2px solid #EAECF0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #EAECF0;
   }
-  .team-oval {
-    border: 2px solid #7C3AED;
-    border-radius: 999px;
-    padding: 6px 24px;
-    font-size: 20px;
+  .header-category {
+    font-size: 12px;
     font-weight: 800;
-    color: #0F1B2D;
-    background: #FFFFFF;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0E7C6B;
+    margin-bottom: 4px;
   }
-  .sih-title {
+  .header-title {
     font-size: 28px;
     font-weight: 900;
     color: #0F1B2D;
-    text-transform: uppercase;
     letter-spacing: -0.01em;
   }
-  .sih-badge {
-    background: #FEF3C7;
-    border: 1.5px solid #F59E0B;
-    border-radius: 10px;
-    padding: 6px 16px;
-    text-align: center;
+  .header-badge {
+    background: #EEF2FF;
+    border: 1.5px solid #2563EB;
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #2563EB;
   }
-  .sih-badge-top { font-size: 11px; font-weight: 800; color: #D97706; text-transform: uppercase; }
-  .sih-badge-bot { font-size: 11px; font-weight: 800; color: #0F1B2D; text-transform: uppercase; }
-  
   .slide-content {
     flex: 1;
-    padding: 22px 45px 16px 45px;
+    padding: 24px 48px 16px 48px;
     display: flex;
     flex-direction: column;
   }
-  .prototype-banner {
-    text-align: center;
-    padding: 10px;
-    font-size: 14px;
-    font-weight: 800;
-    color: #2563EB;
+  .footer-bar {
+    padding: 12px 48px 16px 48px;
     border-top: 1px solid #EAECF0;
-    background: #F8FAFC;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #64748B;
+    background: #FFFFFF;
+  }
+  .footer-bar a {
+    color: #2563EB;
+    font-weight: 700;
+    text-decoration: none;
   }
   .card {
     background: #FFFFFF;
     border: 1.5px solid #E2E8F0;
     border-radius: 14px;
-    padding: 20px 22px;
+    padding: 22px;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   }
   ul.points-list {
@@ -108,15 +110,20 @@
     color: #0F172A;
     font-weight: 750;
   }
-  .star-banner {
-    background: #FEF3C7;
-    border: 1.5px solid #F59E0B;
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-size: 13.5px;
-    font-weight: 800;
-    color: #0F1B2D;
-    margin-bottom: 18px;
+  .diagram-frame {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid #E2E8F0;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+  }
+  .diagram-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0B1426;
+    display: block;
   }
   .screenshot-box {
     border: 2px solid #E2E8F0;
@@ -132,175 +139,181 @@
 </head>
 <body>
 
-<!-- SLIDE 1: SIH Official Title Slide -->
+<!-- SLIDE 1: Title Slide (Kaushal) -->
 <div class="slide">
-  <div style="padding: 30px 50px 20px 50px; display: flex; justify-content: space-between; align-items: flex-start;">
+  <div style="padding: 36px 50px 20px 50px; display: flex; justify-content: space-between; align-items: flex-start;">
     <div>
-      <div style="font-size: 32px; font-weight: 900; color: #0F1B2D;">SMART INDIA HACKATHON 2026</div>
-      <div style="font-size: 20px; font-weight: 800; color: #0E7C6B; margin-top: 4px;">THEME: Education Technology</div>
-      <div style="font-size: 26px; font-weight: 800; color: #2563EB; margin-top: 14px;">EduSync — Offline-First Learning Platform</div>
+      <div style="background: #E6F4F1; border: 1.5px solid #0E7C6B; color: #0E7C6B; padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; display: inline-block; margin-bottom: 10px;">
+        🚀 HACKATHON PROJECT SHOWCASE
+      </div>
+      <div style="font-size: 54px; font-weight: 900; color: #0F1B2D; line-height: 1.1;">EduSync</div>
+      <div style="font-size: 22px; font-weight: 800; color: #2563EB; margin-top: 6px;">
+        Offline-First Learning Platform · Zero Data Loss on Patchy Networks
+      </div>
+      <div style="font-size: 15px; font-weight: 750; color: #475569; margin-top: 10px;">
+        👤 Presented by: <strong style="color: #0F1B2D;">Kaushal</strong> &nbsp;|&nbsp; Theme: Education Technology & Distributed Systems
+      </div>
     </div>
-    <div class="sih-badge" style="padding: 10px 24px;">
-      <div style="font-size: 13px; font-weight: 800; color: #D97706;">SMART INDIA HACKATHON</div>
-      <div style="font-size: 15px; font-weight: 900; color: #0F1B2D;">SIH 2026</div>
+    <div style="background: #0F1B2D; color: #FFFFFF; border-radius: 14px; padding: 14px 22px; text-align: center;">
+      <div style="font-size: 12px; color: #8FD1C6; font-weight: 750; text-transform: uppercase;">VERIFIED EVIDENCE</div>
+      <div style="font-size: 26px; font-weight: 900; color: #FFFFFF; margin-top: 2px;">108 / 108</div>
+      <div style="font-size: 11px; color: #94A3B8;">Automated Tests Passing</div>
     </div>
   </div>
 
-  <div class="slide-content" style="padding-top: 10px;">
-    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; flex: 1;">
-      <div>
-        <table style="width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; margin-bottom: 24px;">
-          <tr style="background: #EEF2FF; border-bottom: 1px solid #E2E8F0;">
-            <td style="padding: 10px 14px; font-weight: 800; color: #0F1B2D; width: 35%;">Problem Statement ID</td>
-            <td style="padding: 10px 14px; color: #334155;">Problem 1 (SIH 2026)</td>
-          </tr>
-          <tr style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0;">
-            <td style="padding: 10px 14px; font-weight: 800; color: #0F1B2D;">Problem Statement Title</td>
-            <td style="padding: 10px 14px; color: #334155;">Offline-First Learning Infrastructure</td>
-          </tr>
-          <tr style="background: #EEF2FF; border-bottom: 1px solid #E2E8F0;">
-            <td style="padding: 10px 14px; font-weight: 800; color: #0F1B2D;">Theme</td>
-            <td style="padding: 10px 14px; color: #334155;">Education Technology</td>
-          </tr>
-          <tr style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0;">
-            <td style="padding: 10px 14px; font-weight: 800; color: #0F1B2D;">PS Category</td>
-            <td style="padding: 10px 14px; color: #334155;">Software (Very Hard)</td>
-          </tr>
-          <tr style="background: #EEF2FF;">
-            <td style="padding: 10px 14px; font-weight: 800; color: #0F1B2D;">Team / Project</td>
-            <td style="padding: 10px 14px; color: #334155; font-weight: 700;">EduSync</td>
-          </tr>
-        </table>
-
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
-          <div class="card" style="border: 2px solid #2563EB; text-align: center; padding: 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: #64748B;">ORGANISATION</div>
-            <div style="font-size: 17px; font-weight: 900; color: #2563EB; margin-top: 4px;">EdTech Hackathon</div>
-          </div>
-          <div class="card" style="border: 2px solid #0E7C6B; text-align: center; padding: 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: #64748B;">PS CATEGORY</div>
-            <div style="font-size: 17px; font-weight: 900; color: #0E7C6B; margin-top: 4px;">Software</div>
-          </div>
-          <div class="card" style="border: 2px solid #D97706; text-align: center; padding: 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: #64748B;">PROBLEM ID</div>
-            <div style="font-size: 17px; font-weight: 900; color: #D97706; margin-top: 4px;">1 (Very Hard)</div>
-          </div>
-        </div>
+  <div class="slide-content" style="padding-top: 8px;">
+    <!-- Live Banner -->
+    <div style="background: #E6F4F1; border: 2px solid #0E7C6B; border-radius: 12px; padding: 14px 24px; text-align: center; margin-bottom: 20px;">
+      <div style="font-size: 18px; font-weight: 900; color: #0E7C6B;">
+        🌐 LIVE WORKING DEPLOYMENT: https://edusync-tus.pages.dev/
       </div>
+      <div style="font-size: 13px; color: #0F1B2D; font-weight: 600; margin-top: 3px;">
+        Judges can open this on any phone or laptop right now, turn on Airplane mode, read lessons, and submit answers with zero internet!
+      </div>
+    </div>
 
-      <div class="card" style="background: #FEF3C7; border: 2px solid #F59E0B; padding: 26px;">
-        <div style="font-size: 14px; font-weight: 800; color: #D97706; text-transform: uppercase;">💡 THE CORE PROMISE (IN SIMPLE WORDS)</div>
-        <div style="font-size: 20px; font-weight: 800; color: #0F1B2D; margin: 8px 0 16px 0;">
-          "Your phone is your digital notebook. The internet is just the mailman."
-        </div>
-        <ul class="points-list" style="color: #334155; font-size: 14.5px; gap: 14px;">
-          <li><strong>Like WhatsApp for School:</strong> You can read lessons, write essays, and submit exams even on airplane mode with zero internet.</li>
-          <li><strong>Crash-Proof:</strong> If your phone battery dies mid-exam, 100% of your work is safe on disk and re-appears when turned back on.</li>
-          <li><strong>No Duplicate Submissions:</strong> Spamming the submit button 5 times during a signal drop still counts as only ONE attempt.</li>
-          <li><strong>Live Deployment:</strong> Open <code>edusync-tus.pages.dev</code> on your phone right now to test it!</li>
-        </ul>
+    <!-- Core Idea Card -->
+    <div class="card" style="margin-bottom: 20px; border-left: 6px solid #D97706; background: #FFFBEB;">
+      <div style="font-size: 13px; font-weight: 800; color: #D97706; text-transform: uppercase;">💡 THE CORE IDEA IN SIMPLE WORDS</div>
+      <div style="font-size: 19px; font-weight: 800; color: #0F1B2D; margin: 4px 0 8px 0;">
+        "Your phone is your digital notebook. The internet is just the mailman."
+      </div>
+      <div style="font-size: 14.5px; color: #334155; line-height: 1.45;">
+        • <strong>Like WhatsApp for School:</strong> You can study, write essays, and submit exams with 0 internet. Work delivers automatically the second signal returns.<br>
+        • <strong>100% Crash-Proof:</strong> Even if your phone battery dies mid-exam, your work is saved on local storage and re-appears when turned back on.<br>
+        • <strong>Zero Duplicate Retries:</strong> Spamming the submit button 5 times during a signal drop still counts as only ONE attempt.
+      </div>
+    </div>
+
+    <!-- 4 Bottom Tiles -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+      <div class="card" style="padding: 14px; background: #EEF2FF; border: 1.5px solid #2563EB;">
+        <div style="font-size: 18px; font-weight: 900; color: #2563EB;">⚡ 0 ms</div>
+        <div style="font-size: 12.5px; font-weight: 800; color: #0F1B2D; margin-top: 2px;">Offline Latency</div>
+        <div style="font-size: 11px; color: #475569; margin-top: 2px;">Instant local writes in IndexedDB</div>
+      </div>
+      <div class="card" style="padding: 14px; background: #E6F4F1; border: 1.5px solid #0E7C6B;">
+        <div style="font-size: 18px; font-weight: 900; color: #0E7C6B;">💾 0 Words Lost</div>
+        <div style="font-size: 12.5px; font-weight: 800; color: #0F1B2D; margin-top: 2px;">Crash-Proof</div>
+        <div style="font-size: 11px; color: #475569; margin-top: 2px;">Survives dead batteries (Kill Test)</div>
+      </div>
+      <div class="card" style="padding: 14px; background: #EDE9FE; border: 1.5px solid #7C3AED;">
+        <div style="font-size: 18px; font-weight: 900; color: #7C3AED;">🛡️ 0 Duplicates</div>
+        <div style="font-size: 12.5px; font-weight: 800; color: #0F1B2D; margin-top: 2px;">Idempotent Submit</div>
+        <div style="font-size: 11px; color: #475569; margin-top: 2px;">Spam clicks safely absorbed</div>
+      </div>
+      <div class="card" style="padding: 14px; background: #FEF3C7; border: 1.5px solid #D97706;">
+        <div style="font-size: 18px; font-weight: 900; color: #D97706;">♿ WCAG 2.2 AA</div>
+        <div style="font-size: 12.5px; font-weight: 800; color: #0F1B2D; margin-top: 2px;">Accessible for All</div>
+        <div style="font-size: 11px; color: #475569; margin-top: 2px;">Screen readers & 7:1+ contrast</div>
       </div>
     </div>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/ (Deployed Live on Cloudflare)</div>
+
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a> &nbsp;|&nbsp; 📦 github.com/blank-0007/edusync</span>
+    <span>Slide 1 of 9</span>
+  </div>
 </div>
 
-<!-- SLIDE 2: Solution Overview & Approach -->
+<!-- SLIDE 2: The Real-World Problem -->
 <div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">Offline-First Learning Platform</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
+  <div class="header-bar">
+    <div>
+      <div class="header-category">THE REAL-WORLD PROBLEM</div>
+      <div class="header-title">Why Traditional Educational Apps Break on Real Networks</div>
     </div>
+    <div class="header-badge">REAL-WORLD STUDENT PAIN</div>
   </div>
   <div class="slide-content">
-    <div class="star-banner">
-      ★ Unique Feature: We do not just show cached pages — we guarantee ZERO lost work, ZERO duplicate test submissions, and seamless offline co-editing with 0ms local saving.
-    </div>
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; flex: 1;">
-      <div class="card" style="border: 2px solid #10B981;">
-        <div style="font-size: 18px; font-weight: 800; color: #10B981; margin-bottom: 12px;">1. Our Approach (Simple)</div>
+      <div class="card" style="border: 2px solid #E11D48;">
+        <div style="font-size: 18px; font-weight: 800; color: #E11D48; margin-bottom: 12px;">🚌 The Bus Ride Reality</div>
         <ul class="points-list">
-          <li><strong>The Bus Ride Reality:</strong> Students on rural bus commutes lose cellular internet constantly.</li>
-          <li><strong>Save on Phone First:</strong> Every letter you type saves directly on your phone's memory in 0 milliseconds.</li>
-          <li><strong>Download Once, Read Anywhere:</strong> Textbooks and lesson videos are pre-downloaded onto the device.</li>
-          <li><strong>No Loading Wheels:</strong> Zero spinning wheels because lessons open instantly from local storage.</li>
+          <li><strong>Commute Signal Drops:</strong> Students commuting on buses or trains face constant signal blackouts.</li>
+          <li><strong>Fake Online Status:</strong> Browsers claim 'online' even behind dead captive portals with zero data flow.</li>
+          <li><strong>Frozen Loading Spinners:</strong> Traditional school apps freeze for 30s timeouts, locking students out of their notes.</li>
+          <li><strong>Blocked Homework Access:</strong> Students cannot open instructions or study rubrics once disconnected.</li>
         </ul>
       </div>
-      <div class="card" style="border: 2px solid #2563EB;">
-        <div style="font-size: 18px; font-weight: 800; color: #2563EB; margin-bottom: 12px;">2. How It Solves the Problem</div>
+      <div class="card" style="border: 2px solid #D97706;">
+        <div style="font-size: 18px; font-weight: 800; color: #D97706; margin-bottom: 12px;">💥 Devastating Exam Wipeouts</div>
         <ul class="points-list">
-          <li><strong>Zero Disappearing Exams:</strong> When you click 'Submit' offline, an official confirmed receipt appears instantly.</li>
-          <li><strong>Automatic Wi-Fi Delivery:</strong> When your phone connects to Wi-Fi, it quietly delivers your test in the background.</li>
-          <li><strong>Never Clogs School Wi-Fi:</strong> Smart waiting prevents 50 students from crashing school routers at once.</li>
-          <li><strong>Honest Status Always:</strong> Truthfully displays: 'Offline · 2 changes saved safely on this device'.</li>
+          <li><strong>The Disappearing Essay:</strong> A student writes 500 words, clicks Submit in a dead zone, and the page refreshes to blank.</li>
+          <li><strong>Duplicate Submissions:</strong> Panicked students spam Submit 10 times, causing duplicate entries or spam blocks.</li>
+          <li><strong>Silent Overwrites:</strong> Naive Last-Write-Wins wipes simultaneous offline edits with zero warning.</li>
+          <li><strong>Student Anxiety:</strong> Fear of lost work causes immense stress during digital exam submissions.</li>
         </ul>
       </div>
-      <div class="card" style="border: 2px solid #7C3AED;">
-        <div style="font-size: 18px; font-weight: 800; color: #7C3AED; margin-bottom: 12px;">3. The Advanced Twist</div>
+      <div class="card" style="border: 2px solid #0E7C6B;">
+        <div style="font-size: 18px; font-weight: 800; color: #0E7C6B; margin-bottom: 12px;">💡 How EduSync Fixes This</div>
         <ul class="points-list">
-          <li><strong>Offline Teamwork:</strong> Two students can edit the same lab report offline without overwriting each other.</li>
-          <li><strong>Mathematical Merging:</strong> Using Yjs CRDTs, concurrent edits blend together smoothly like magic.</li>
-          <li><strong>Side-by-Side Review Screen:</strong> If both students edit the exact same line, EduSync shows both copies side-by-side.</li>
-          <li><strong>Student Decides:</strong> Choose 'Keep Mine', 'Accept Peer's', or 'Combine Both' with 0 lost words.</li>
+          <li><strong>Instant 0ms Local Save:</strong> Every keystroke commits immediately to phone storage before touching the wire.</li>
+          <li><strong>Pre-Cached Courses:</strong> Textbooks and lesson videos open instantly with zero internet required.</li>
+          <li><strong>Instant Confirmed Receipts:</strong> Students receive an official submission receipt right on their screen.</li>
+          <li><strong>Gentle Wi-Fi Reconnect:</strong> Background delta queue delivers work automatically when signal returns.</li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 2 of 9</span>
+  </div>
 </div>
 
-<!-- SLIDE 3: Technical Approach & Pipeline -->
+<!-- SLIDE 3: Visual Pipeline Diagram (IMAGE 1) -->
 <div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">Technical Approach</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
+  <div class="header-bar">
+    <div>
+      <div class="header-category">DATA SYNCHRONIZATION PIPELINE</div>
+      <div class="header-title">The 5-Step Pipeline: How Work Reaches the Teacher Safely</div>
+    </div>
+    <div class="header-badge" style="background: #E6F4F1; border-color: #0E7C6B; color: #0E7C6B;">END-TO-END FLOWCHART</div>
+  </div>
+  <div class="slide-content" style="padding: 18px 48px;">
+    <div class="diagram-frame">
+      <img src="file:///Users/blank/Desktop/edusync/assets/pipeline-diagram.png" alt="EduSync Pipeline Diagram">
     </div>
   </div>
-  <div class="slide-content">
-    <div style="background: #0F1B2D; border: 2px solid #0E7C6B; border-radius: 10px; padding: 12px 20px; color: #FFFFFF; text-align: center; margin-bottom: 18px;">
-      <div style="font-size: 16px; font-weight: 900;">EDUSYNC PIPELINE: ZERO-DATA-LOSS OFFLINE LEARNING</div>
-      <div style="font-size: 12px; color: #8FD1C6; margin-top: 3px;">How work flows reliably from a student's phone to the teacher's gradebook</div>
-    </div>
-    <div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 24px; flex: 1;">
-      <div class="card" style="border: 1.5px solid #E2E8F0;">
-        <div style="font-size: 14px; font-weight: 800; color: #2563EB; margin-bottom: 12px; text-transform: uppercase;">Core Technologies (Simplified)</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 10px;">
-          <li><strong>React 18 & Vite (Screen):</strong> The buttons, forms, and pages the student touches. Updates instantly with 0ms delay so it never freezes.</li>
-          <li><strong>IndexedDB (Phone Storage):</strong> A tamper-proof storage box right inside the browser. Survives phone restarts and dead batteries.</li>
-          <li><strong>Cloudflare D1 (Global Server):</strong> Fast cloud database running in 300+ cities globally. Absorbs retry clicks so you are never double-submitted.</li>
-          <li><strong>Yjs CRDTs (Co-Editing):</strong> Math formula that blends edits from multiple offline students without losing a single letter.</li>
-        </ul>
-      </div>
-      <div class="card" style="border: 2px solid #2563EB;">
-        <div style="font-size: 15px; font-weight: 800; color: #0F1B2D; margin-bottom: 14px; text-transform: uppercase;">The 5-Step Data Synchronization Pipeline</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 10px;">
-          <li><strong style="color: #0E7C6B;">➔ 1. WRITE (0ms Instant Local):</strong> Student types an essay. React updates the screen instantly without asking the internet.</li>
-          <li><strong style="color: #0E7C6B;">➔ 2. LOG (Local Disk Commit):</strong> Every keystroke is permanently written to an IndexedDB operation log on physical storage.</li>
-          <li><strong style="color: #0E7C6B;">➔ 3. STATE (Truthful Badge):</strong> The app shows 'Offline · 2 changes saved'. Students feel completely safe continuing.</li>
-          <li><strong style="color: #0E7C6B;">➔ 4. DRAIN (Jittered Queue):</strong> When Wi-Fi returns, the phone gently flushes the queue without overwhelming school routers.</li>
-          <li><strong style="color: #0E7C6B;">➔ 5. RECONCILE (Cloudflare D1):</strong> The server receives the work, verifies the unique receipt ID, and confirms 'All synchronized'.</li>
-        </ul>
-      </div>
-    </div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 3 of 9</span>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
 </div>
 
-<!-- SLIDE 4: How Our Project Looks (Library & Offline Submit) -->
+<!-- SLIDE 4: Visual Architecture Diagram (IMAGE 2) -->
 <div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">How Our Project Looks: Real-World UI</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
+  <div class="header-bar">
+    <div>
+      <div class="header-category">SYSTEM ARCHITECTURE</div>
+      <div class="header-title">System Architecture: Layer-by-Layer Engineering</div>
     </div>
+    <div class="header-badge">OFFLINE-FIRST DISTRIBUTED SYSTEM</div>
+  </div>
+  <div class="slide-content" style="padding: 18px 48px;">
+    <div class="diagram-frame">
+      <img src="file:///Users/blank/Desktop/edusync/assets/architecture-diagram.png" alt="EduSync Architecture Diagram">
+    </div>
+  </div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 4 of 9</span>
+  </div>
+</div>
+
+<!-- SLIDE 5: UI Walkthrough (Library & Assignment Offline) -->
+<div class="slide">
+  <div class="header-bar">
+    <div>
+      <div class="header-category">REAL-WORLD UI WALKTHROUGH</div>
+      <div class="header-title">How Our Project Looks: Offline Library & Writing</div>
+    </div>
+    <div class="header-badge" style="background: #E6F4F1; border-color: #0E7C6B; color: #0E7C6B;">ACTUAL SCREENS</div>
   </div>
   <div class="slide-content">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1;">
@@ -309,11 +322,11 @@
           <img src="file:///Users/blank/Desktop/edusync/docs/shots/02-library.png" alt="Course Library">
         </div>
         <div class="card" style="margin-top: 14px; background: #E6F4F1; border: 1.5px solid #0E7C6B; padding: 14px 18px;">
-          <div style="font-size: 14px; font-weight: 800; color: #0E7C6B;">1. Course Library (Pre-Cached Offline)</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #0E7C6B;">📚 1. Course Library (Pre-Cached Offline)</div>
           <div style="font-size: 12.5px; color: #334155; margin-top: 4px; line-height: 1.4;">
-            • Notice the green 'Available offline' badges on every lesson topic.<br>
-            • Lessons and assignment rubrics are downloaded once and open in 0ms.<br>
-            • Students can read all 6 lessons on a bus with ZERO internet.
+            • Notice the green <strong>'Available offline'</strong> badges on every lesson topic.<br>
+            • Lessons and assignment rubrics are downloaded once and open in <strong>0ms</strong>.<br>
+            • Students can read all 6 lessons on a bus with <strong>ZERO internet</strong>.
           </div>
         </div>
       </div>
@@ -322,28 +335,31 @@
           <img src="file:///Users/blank/Desktop/edusync/docs/shots/04-assignment-offline.png" alt="Assignment Offline">
         </div>
         <div class="card" style="margin-top: 14px; background: #EEF2FF; border: 1.5px solid #2563EB; padding: 14px 18px;">
-          <div style="font-size: 14px; font-weight: 800; color: #2563EB;">2. Assignment Workspace (Submitted Offline)</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #2563EB;">✍️ 2. Assignment Workspace (Submitted Offline)</div>
           <div style="font-size: 12.5px; color: #334155; margin-top: 4px; line-height: 1.4;">
-            • Student takes worksheet with Wi-Fi turned off completely.<br>
-            • Shows green 'Submitted · confirmed' badge and instant official receipt.<br>
-            • Survives the Kill Test: Closing the tab or phone dying loses 0 words.
+            • Student submits worksheet with Wi-Fi turned off completely.<br>
+            • Shows green <strong>'Submitted · confirmed'</strong> badge and instant official receipt.<br>
+            • <strong>Kill Test Verified:</strong> Closing the tab or phone dying loses 0 words upon reopening.
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 5 of 9</span>
+  </div>
 </div>
 
-<!-- SLIDE 5: How Our Project Looks (Sync Center & Diff Review) -->
+<!-- SLIDE 6: UI Walkthrough (Sync Center & Conflict Diff) -->
 <div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">How Our Project Looks: Sync Center & Conflict Diff</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
+  <div class="header-bar">
+    <div>
+      <div class="header-category">REAL-WORLD UI WALKTHROUGH</div>
+      <div class="header-title">How Our Project Looks: Sync Center & Conflict Diff</div>
     </div>
+    <div class="header-badge" style="background: #FEF3C7; border-color: #D97706; color: #D97706;">ACTUAL SCREENS</div>
   </div>
   <div class="slide-content">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1;">
@@ -352,9 +368,9 @@
           <img src="file:///Users/blank/Desktop/edusync/docs/shots/06-sync-center-queued.png" alt="Sync Center">
         </div>
         <div class="card" style="margin-top: 14px; background: #FEF3C7; border: 1.5px solid #F59E0B; padding: 14px 18px;">
-          <div style="font-size: 14px; font-weight: 800; color: #D97706;">3. Sync Center (Connection Simulator)</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #D97706;">🔄 3. Sync Center (Connection Simulator)</div>
           <div style="font-size: 12.5px; color: #334155; margin-top: 4px; line-height: 1.4;">
-            • Judges can flip the 'Simulate offline' switch live to test drops.<br>
+            • Judges can flip the <strong>'Simulate offline'</strong> switch live to test drops.<br>
             • Shows queued edits waiting safely on device memory.<br>
             • Automatic background drain as soon as network is switched back on.
           </div>
@@ -365,170 +381,194 @@
           <img src="file:///Users/blank/Desktop/edusync/docs/shots/08-review-inbox.png" alt="Review Inbox">
         </div>
         <div class="card" style="margin-top: 14px; background: #EDE9FE; border: 1.5px solid #7C3AED; padding: 14px 18px;">
-          <div style="font-size: 14px; font-weight: 800; color: #7C3AED;">4. Review Inbox (Side-by-Side Conflict Diff)</div>
+          <div style="font-size: 14.5px; font-weight: 800; color: #7C3AED;">👥 4. Review Inbox (Side-by-Side Conflict Diff)</div>
           <div style="font-size: 12.5px; color: #334155; margin-top: 4px; line-height: 1.4;">
             • Visual diff highlights exact changes between local draft and server.<br>
-            • Students pick: 'Keep Mine', 'Accept Peer's', or 'Combine Both'.<br>
+            • Students pick: <strong>'Keep Mine'</strong>, <strong>'Accept Peer's'</strong>, or <strong>'Combine Both'</strong>.<br>
             • Zero silent overwrites — no student's hard work is ever clobbered.
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 6 of 9</span>
+  </div>
 </div>
 
-<!-- SLIDE 6: Impact and Benefits -->
+<!-- SLIDE 7: Simplified Tech Stack -->
 <div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">Impact and Benefits</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
+  <div class="header-bar">
+    <div>
+      <div class="header-category">TECHNOLOGY STACK</div>
+      <div class="header-title">The Tech Stack: What We Used & Why (In Plain Words)</div>
     </div>
+    <div class="header-badge">PURPOSE-BUILT ARCHITECTURE</div>
   </div>
   <div class="slide-content">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; flex: 1; margin-bottom: 14px;">
-      <div class="card" style="border: 2px solid #2563EB;">
-        <div style="font-size: 16px; font-weight: 800; color: #2563EB; margin-bottom: 8px;">Student Peace of Mind</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>No Lost Work:</strong> Every character is saved locally; exams never wipe blank.</li>
-          <li><strong>Zero Disconnect Lockouts:</strong> Take tests anywhere, anytime with full access.</li>
-          <li><strong>Instant Receipts:</strong> Confirmed receipt on screen gives confidence.</li>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; flex: 1;">
+      <div class="card" style="border-top: 5px solid #2563EB;">
+        <div style="font-size: 24px; margin-bottom: 4px;">📱</div>
+        <div style="font-size: 11.5px; font-weight: 800; color: #2563EB; text-transform: uppercase;">FRONTEND SCREEN</div>
+        <div style="font-size: 17px; font-weight: 800; margin: 4px 0 8px 0; color: #0F1B2D;">React 18 & Vite</div>
+        <div style="font-size: 12px; font-style: italic; color: #475467; margin-bottom: 12px;">What it is: The visual buttons and screens the student touches.</div>
+        <ul class="points-list" style="font-size: 13px; gap: 8px;">
+          <li><strong>0ms Response:</strong> Updates instantly as you type so screen never lags.</li>
+          <li><strong>TypeScript Safety:</strong> Catches code bugs before reaching students.</li>
+          <li><strong>Super-Light:</strong> Loads in &lt;1s even on budget $50 smartphones.</li>
         </ul>
       </div>
-      <div class="card" style="border: 2px solid #D97706;">
-        <div style="font-size: 16px; font-weight: 800; color: #D97706; margin-bottom: 8px;">Teacher & School Integrity</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Zero Duplicate Submissions:</strong> Unique IDs absorb panic button clicks.</li>
-          <li><strong>Protected Wi-Fi:</strong> Smart backoff prevents 50 students crashing school routers.</li>
-          <li><strong>Audit Trail:</strong> Full tamper-proof timestamp history for grading.</li>
+      <div class="card" style="border-top: 5px solid #0E7C6B;">
+        <div style="font-size: 24px; margin-bottom: 4px;">💾</div>
+        <div style="font-size: 11.5px; font-weight: 800; color: #0E7C6B; text-transform: uppercase;">DEVICE STORAGE</div>
+        <div style="font-size: 17px; font-weight: 800; margin: 4px 0 8px 0; color: #0F1B2D;">IndexedDB & SW</div>
+        <div style="font-size: 12px; font-style: italic; color: #475467; margin-bottom: 12px;">What it is: A private, tamper-proof storage box right inside the browser.</div>
+        <ul class="points-list" style="font-size: 13px; gap: 8px;">
+          <li><strong>Survives Crashes:</strong> Saved on phone disk; survives dead batteries.</li>
+          <li><strong>Service Worker:</strong> Keeps textbooks offline so books open with 0 internet.</li>
+          <li><strong>Immutable Log:</strong> Every keystroke recorded like a paper diary.</li>
         </ul>
       </div>
-      <div class="card" style="border: 2px solid #0E7C6B;">
-        <div style="font-size: 16px; font-weight: 800; color: #0E7C6B; margin-bottom: 8px;">Closing the Digital Divide</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Rural Equity:</strong> Students in low-connectivity areas have equal access.</li>
-          <li><strong>Works on $50 Phones:</strong> Lightweight, runs on cheap Android devices.</li>
-          <li><strong>Saves Cellular Data:</strong> Only sends tiny text differences, not whole files.</li>
+      <div class="card" style="border-top: 5px solid #7C3AED;">
+        <div style="font-size: 24px; margin-bottom: 4px;">☁️</div>
+        <div style="font-size: 11.5px; font-weight: 800; color: #7C3AED; text-transform: uppercase;">GLOBAL CLOUD</div>
+        <div style="font-size: 17px; font-weight: 800; margin: 4px 0 8px 0; color: #0F1B2D;">Cloudflare D1 & Fastify</div>
+        <div style="font-size: 12px; font-style: italic; color: #475467; margin-bottom: 12px;">What it is: The fast server and database deployed in 300+ cities globally.</div>
+        <ul class="points-list" style="font-size: 13px; gap: 8px;">
+          <li><strong>300+ Edge Nodes:</strong> Near students anywhere in the world for speed.</li>
+          <li><strong>Duplicate Shield:</strong> Absorbs repeated clicks so students aren't double-submitted.</li>
+          <li><strong>Incremental Sync:</strong> Only sends new words you typed, saving mobile data.</li>
         </ul>
       </div>
-      <div class="card" style="border: 2px solid #7C3AED;">
-        <div style="font-size: 16px; font-weight: 800; color: #7C3AED; margin-bottom: 8px;">100% Inclusivity (WCAG 2.2 AA)</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Screen Reader Friendly:</strong> Visually impaired students hear live audio sync updates.</li>
-          <li><strong>7:1 Contrast Ratio:</strong> Readable in blazing bright sunlight on low-cost screens.</li>
-          <li><strong>100% Keyboard Usable:</strong> Full accessibility for motor-impaired students.</li>
+      <div class="card" style="border-top: 5px solid #D97706;">
+        <div style="font-size: 24px; margin-bottom: 4px;">🛡️</div>
+        <div style="font-size: 11.5px; font-weight: 800; color: #D97706; text-transform: uppercase;">QUALITY & AUDIT</div>
+        <div style="font-size: 17px; font-weight: 800; margin: 4px 0 8px 0; color: #0F1B2D;">Vitest & axe-core</div>
+        <div style="font-size: 12px; font-style: italic; color: #475467; margin-bottom: 12px;">What it is: Automated robot testers that verify the system never breaks.</div>
+        <ul class="points-list" style="font-size: 13px; gap: 8px;">
+          <li><strong>108 Automated Tests:</strong> Tests every network drop and crash scenario.</li>
+          <li><strong>WCAG 2.2 AA:</strong> Audited to ensure visually impaired students have access.</li>
+          <li><strong>Zero Guesswork:</strong> Every single claim is backed by automated code.</li>
         </ul>
-      </div>
-    </div>
-    <div class="card" style="background: #EEF2FF; border: 1.5px solid #2563EB; padding: 12px 18px;">
-      <div style="font-size: 13.5px; font-weight: 800; color: #0F1B2D;">
-        Future Scope: Peer-to-peer Wi-Fi Direct sync for offline rural classrooms without internet, and decentralized exam server boxes.
       </div>
     </div>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 7 of 9</span>
+  </div>
 </div>
 
-<!-- SLIDE 7: Feasibility and Viability -->
+<!-- SLIDE 8: Inclusivity & Live Links -->
 <div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">Feasibility and Viability</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
+  <div class="header-bar">
+    <div>
+      <div class="header-category">INCLUSIVITY & VERIFICATION</div>
+      <div class="header-title">Built for Every Student & Live Links for Judges</div>
     </div>
-  </div>
-  <div class="slide-content">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; flex: 1;">
-      <div class="card" style="border: 2px solid #10B981;">
-        <div style="font-size: 16px; font-weight: 800; color: #10B981; margin-bottom: 8px;">Feasible Today</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Open Web Standards:</strong> IndexedDB, Service Workers, React 18 are battle-tested.</li>
-          <li><strong>Zero Proprietary Locks:</strong> Runs in standard Chrome, Edge, Safari, and Firefox.</li>
-          <li><strong>Serverless Edge:</strong> Cloudflare Pages & D1 provide 300+ global edge locations.</li>
-        </ul>
-      </div>
-      <div class="card" style="border: 2px solid #E11D48;">
-        <div style="font-size: 16px; font-weight: 800; color: #E11D48; margin-bottom: 8px;">Key Real-World Risks</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Device Storage Limits:</strong> Older phones running out of space for lesson PDFs.</li>
-          <li><strong>Severe Clock Skew:</strong> Students with incorrectly set phone clocks by hours.</li>
-          <li><strong>Concurrent Conflicts:</strong> Multiple offline students editing the same paragraph.</li>
-        </ul>
-      </div>
-      <div class="card" style="border: 2px solid #2563EB;">
-        <div style="font-size: 16px; font-weight: 800; color: #2563EB; margin-bottom: 8px;">Engineered Mitigations</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Smart Cache Pruning:</strong> Automatic LRU cache clears old lessons when space is tight.</li>
-          <li><strong>Hybrid Logical Clocks:</strong> Merges physical time with sequence counts to eliminate drift.</li>
-          <li><strong>Yjs CRDTs + Diff Review:</strong> Mathematical merging with side-by-side diff review options.</li>
-        </ul>
-      </div>
-      <div class="card" style="border: 2px solid #7C3AED;">
-        <div style="font-size: 16px; font-weight: 800; color: #7C3AED; margin-bottom: 8px;">Rollout Plan</div>
-        <ul class="points-list" style="font-size: 13.5px; gap: 6px;">
-          <li><strong>Phase 1: Pilot:</strong> Test with 5 rural institutions on patchy mobile networks.</li>
-          <li><strong>Phase 2: District Rollout:</strong> Deploy across state schools with central teacher gradebook.</li>
-          <li><strong>Phase 3: National Scale:</strong> Integrate with government portals (DIKSHA / SWAYAM).</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
-</div>
-
-<!-- SLIDE 8: Verification & Evidence -->
-<div class="slide">
-  <div class="sih-header">
-    <div class="team-oval">EduSync</div>
-    <div class="sih-title">Verification, Codebase & Live Links</div>
-    <div class="sih-badge">
-      <div class="sih-badge-top">SMART INDIA</div>
-      <div class="sih-badge-bot">HACKATHON 2026</div>
-    </div>
+    <div class="header-badge" style="background: #E6F4F1; border-color: #0E7C6B; color: #0E7C6B;">WCAG 2.2 AA VERIFIED</div>
   </div>
   <div class="slide-content">
     <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 32px; flex: 1;">
-      <div class="card" style="border: 2px solid #2563EB;">
-        <div style="font-size: 16px; font-weight: 800; color: #2563EB; margin-bottom: 14px;">VERIFIED IMPACT & WORKING EVIDENCE</div>
-        <ul class="points-list" style="font-size: 14px; gap: 12px;">
-          <li><strong style="color: #0E7C6B;">✔ 108 / 108 Automated Tests Passing:</strong> Vitest suite tests every failure scenario, network drop, and crash test automatically.</li>
-          <li><strong style="color: #0E7C6B;">✔ Live Cloudflare Deployment:</strong> Deployed on 300+ edge locations worldwide: https://edusync-tus.pages.dev/</li>
-          <li><strong style="color: #0E7C6B;">✔ 2-Minute Silent Screen Recording:</strong> High-definition MP4 demo with custom animated cursor & caption HUD: assets/EduSync-Demo.mp4</li>
-          <li><strong style="color: #0E7C6B;">✔ Complete GitHub Monorepo:</strong> Full open-source codebase with setup instructions: https://github.com/blank-0007/edusync</li>
-          <li><strong style="color: #0E7C6B;">✔ WCAG 2.2 AA Inclusivity Audited:</strong> Automated axe-core regression suite confirms 0 critical/serious errors.</li>
+      <div class="card" style="border: 2px solid #0E7C6B;">
+        <div style="font-size: 16px; font-weight: 800; color: #0E7C6B; margin-bottom: 14px;">♿ BUILT FOR EVERY SINGLE STUDENT</div>
+        <ul class="points-list" style="font-size: 13.5px; gap: 12px;">
+          <li><strong>Screen Reader Friendly:</strong> Blind and visually impaired students hear live audio announcements whenever network state changes ('You are offline', 'Syncing your work', 'Successfully saved').</li>
+          <li><strong>Sunlight-Readable Contrast:</strong> High-contrast text (7:1 ratio) exceeds international accessibility standards. It stays 100% readable even on cheap phone screens in bright sunlight.</li>
+          <li><strong>100% Keyboard Usable:</strong> Students with motor impairments can navigate every single page and submit work using only Tab, Shift+Tab, and Enter keys.</li>
+          <li><strong>108 Automated Tests Passing:</strong> Every failure scenario, simulated network drop, and crash test was verified automatically across the monorepo.</li>
         </ul>
       </div>
 
       <div style="display: flex; flex-direction: column; justify-content: space-between;">
-        <div class="card" style="background: #E6F4F1; border: 2px solid #0E7C6B;">
-          <div style="font-size: 14.5px; font-weight: 800; color: #0E7C6B; margin-bottom: 8px;">HOW JUDGES CAN TEST THIS RIGHT NOW</div>
-          <div style="font-size: 13px; color: #334155; line-height: 1.5;">
-            1. Open <strong>https://edusync-tus.pages.dev/</strong> on your phone.<br>
-            2. Go to 'Sync Center' and flip 'Simulate offline' ON.<br>
-            3. Go to 'Assignments', write an answer, and click Submit.<br>
-            4. <strong>Instant official receipt! 0 errors! 0 lost work!</strong><br>
-            5. Flip simulator OFF: Watch the queue drain automatically!
+        <div class="card" style="background: #EEF2FF; border: 2px solid #2563EB;">
+          <div style="font-size: 14.5px; font-weight: 800; color: #2563EB; margin-bottom: 6px;">🌐 Live Cloudflare Web App</div>
+          <div style="font-size: 13px; color: #334155; line-height: 1.45;">
+            <strong>https://edusync-tus.pages.dev/</strong><br>
+            Try it right now: Open on your smartphone, turn on Airplane mode, read a lesson, and submit an answer. Watch it issue an official receipt with zero network!
           </div>
         </div>
-
-        <div class="card" style="background: #FEF3C7; border: 2px solid #F59E0B; text-align: center; padding: 22px;">
-          <div style="font-size: 24px; font-weight: 900; color: #0F1B2D;">THANK YOU!</div>
-          <div style="font-size: 14px; font-weight: 800; color: #D97706; margin: 4px 0 10px 0;">
-            EduSync — Eliminating the Digital Divide for Rural Students
+        <div class="card" style="background: #E6F4F1; border: 2px solid #0E7C6B;">
+          <div style="font-size: 14.5px; font-weight: 800; color: #0E7C6B; margin-bottom: 6px;">🎬 2-Minute Screen-Recorded Video</div>
+          <div style="font-size: 13px; color: #334155; line-height: 1.45;">
+            <strong>assets/EduSync-Demo.mp4</strong> (in GitHub repo)<br>
+            Clean silent screen capture with custom animated cursor and step-by-step caption HUD explaining each offline invariant.
           </div>
-          <div style="font-size: 13px; color: #475569;">
-            We are excited to answer your questions and walk through the live demo!
+        </div>
+        <div class="card" style="background: #FEF3C7; border: 2px solid #F59E0B;">
+          <div style="font-size: 14.5px; font-weight: 800; color: #D97706; margin-bottom: 6px;">📦 Open-Source Codebase & Tests</div>
+          <div style="font-size: 13px; color: #334155; line-height: 1.45;">
+            <strong>https://github.com/blank-0007/edusync</strong><br>
+            108/108 automated tests passing across 3 workspaces. Complete reproduction: <code>npm run dev</code>, <code>npm test</code>, <code>bash scripts/verify.sh</code>.
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="prototype-banner">Solution Prototype: https://edusync-tus.pages.dev/</div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 8 of 9</span>
+  </div>
+</div>
+
+<!-- SLIDE 9: Conclusion -->
+<div class="slide">
+  <div class="header-bar">
+    <div>
+      <div class="header-category">CONCLUSION & FINAL VERDICT</div>
+      <div class="header-title">Education for Everyone, Anywhere, Anytime</div>
+    </div>
+    <div class="header-badge" style="background: #E6F4F1; border-color: #0E7C6B; color: #0E7C6B;">EDUSYNC</div>
+  </div>
+  <div class="slide-content">
+    <div class="card" style="background: #E6F4F1; border: 2px solid #0E7C6B; text-align: center; padding: 20px; margin-bottom: 22px;">
+      <div style="font-size: 12.5px; font-weight: 800; color: #0E7C6B; text-transform: uppercase;">THE BOTTOM LINE FOR STUDENTS WORLDWIDE</div>
+      <div style="font-size: 24px; font-weight: 900; color: #0F1B2D; margin-top: 6px;">
+        "A student's internet connection should never decide whether they pass or fail."
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex: 1;">
+      <div class="card" style="border-top: 5px solid #0E7C6B;">
+        <div style="font-size: 17px; font-weight: 800; color: #0E7C6B; margin-bottom: 12px;">✍️ Write Anywhere, Worry About Nothing</div>
+        <ul class="points-list" style="font-size: 13.5px;">
+          <li><strong>Every Keystroke Saved:</strong> Zero waiting for servers.</li>
+          <li><strong>100% Crash-Proof:</strong> Survives dead batteries and phone restarts.</li>
+          <li><strong>Zero Disconnect Lockouts:</strong> Full offline access to books & rubrics.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top: 5px solid #2563EB;">
+        <div style="font-size: 17px; font-weight: 800; color: #2563EB; margin-bottom: 12px;">🚀 Clean, Smart & Truthful Delivery</div>
+        <ul class="points-list" style="font-size: 13.5px;">
+          <li><strong>No Duplicate Submissions:</strong> Unique IDs absorb retry spam.</li>
+          <li><strong>Gentle on School Wi-Fi:</strong> Jittered backoff prevents server crashes.</li>
+          <li><strong>Effortless Group Teamwork:</strong> Yjs CRDTs blend offline edits safely.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top: 5px solid #D97706;">
+        <div style="font-size: 17px; font-weight: 800; color: #D97706; margin-bottom: 12px;">✅ Ready Today, Proven with Tests</div>
+        <ul class="points-list" style="font-size: 13.5px;">
+          <li><strong>108/108 Tests Passing:</strong> Every single edge case verified.</li>
+          <li><strong>WCAG 2.2 AA Inclusivity:</strong> High-contrast & screen reader friendly.</li>
+          <li><strong>Live on Cloudflare:</strong> Deployed worldwide at edusync-tus.pages.dev.</li>
+        </ul>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 18px;">
+      <div style="font-size: 22px; font-weight: 900; color: #0F1B2D;">THANK YOU! WE ARE EXCITED TO ANSWER YOUR QUESTIONS</div>
+      <div style="font-size: 14px; font-weight: 750; color: #0E7C6B; margin-top: 4px;">
+        EduSync · Created by <strong>Kaushal</strong> &nbsp;|&nbsp; Live App: <a href="https://edusync-tus.pages.dev/" style="color: #2563EB;">edusync-tus.pages.dev</a> &nbsp;|&nbsp; Repository: <a href="https://github.com/blank-0007/edusync" style="color: #2563EB;">github.com/blank-0007/edusync</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <span>EduSync · Presented by Kaushal</span>
+    <span><a href="https://edusync-tus.pages.dev/">🌐 Live App: edusync-tus.pages.dev</a></span>
+    <span>Slide 9 of 9</span>
+  </div>
 </div>
 
 </body>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 30px;
+    width: 1600px;
+    height: 900px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0B1426;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    padding-bottom: 16px;
+  }
+  .title { font-size: 28px; font-weight: 900; color: #FFFFFF; }
+  .title span { color: #14B8A6; }
+  .badge { background: #13223C; border: 1.5px solid #14B8A6; color: #14B8A6; padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+  
+  .layers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    margin-top: 18px;
+  }
+  .layer {
+    background: #13223C;
+    border-radius: 14px;
+    border-left: 6px solid;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .layer-title-box {
+    width: 220px;
+    flex: 0 0 auto;
+  }
+  .layer-icon { font-size: 26px; }
+  .layer-name { font-size: 17px; font-weight: 800; color: #FFFFFF; }
+  .layer-sub { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+  
+  .layer-blocks {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    flex: 1;
+  }
+  .block {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .block-title { font-size: 13.5px; font-weight: 800; color: #FFFFFF; display: flex; align-items: center; gap: 6px; }
+  .block-desc { font-size: 11.5px; color: #CBD5E1; margin-top: 4px; line-height: 1.35; }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #94A3B8;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">EduSync <span>System Architecture</span></div>
+    <div class="badge">OFFLINE-FIRST DISTRIBUTED SYSTEM</div>
+  </div>
+
+  <div class="layers-container">
+    <!-- Layer 1 -->
+    <div class="layer" style="border-left-color: #3B82F6;">
+      <div class="layer-title-box">
+        <div class="layer-icon">📱</div>
+        <div class="layer-name">1. Client Layer</div>
+        <div class="layer-sub">Browser / Mobile Device</div>
+      </div>
+      <div class="layer-blocks">
+        <div class="block">
+          <div class="block-title" style="color: #60A5FA;">⚡ React 18 UI</div>
+          <div class="block-desc">Optimistic rendering; 0ms local response without blocking spinners.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #60A5FA;">🛡️ TypeScript</div>
+          <div class="block-desc">Strict type safety & shared contract schemas across workspaces.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #60A5FA;">📊 State Machine</div>
+          <div class="block-desc">Truthful indicators: OFFLINE, SYNCING, or SYNCED.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #60A5FA;">♿ WCAG 2.2 AA</div>
+          <div class="block-desc">ARIA live regions, 7:1+ contrast & 100% keyboard control.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 2 -->
+    <div class="layer" style="border-left-color: #14B8A6;">
+      <div class="layer-title-box">
+        <div class="layer-icon">💾</div>
+        <div class="layer-name">2. Local Storage</div>
+        <div class="layer-sub">Tamper-Proof Device Vault</div>
+      </div>
+      <div class="layer-blocks">
+        <div class="block">
+          <div class="block-title" style="color: #2DD4BF;">🔒 IndexedDB Vault</div>
+          <div class="block-desc">Durable local database; survives browser reboots & dead batteries.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #2DD4BF;">📜 Append-Only Log</div>
+          <div class="block-desc">Every keystroke appends synchronously as an immutable operation.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #2DD4BF;">⏰ Hybrid Clock (HLC)</div>
+          <div class="block-desc">Merges physical time & logical count; eliminates device clock drift.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #2DD4BF;">📚 Service Worker</div>
+          <div class="block-desc">Pre-caches curriculum & app shell for instant 0ms offline access.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 3 -->
+    <div class="layer" style="border-left-color: #F59E0B;">
+      <div class="layer-title-box">
+        <div class="layer-icon">🔄</div>
+        <div class="layer-name">3. Sync Transport</div>
+        <div class="layer-sub">Resilient Network Bridge</div>
+      </div>
+      <div class="layer-blocks">
+        <div class="block">
+          <div class="block-title" style="color: #FBBF24;">🎲 Jittered Backoff</div>
+          <div class="block-desc">min(30s, 500ms · 2^n) ± 25% prevents school Wi-Fi stampedes.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #FBBF24;">📡 Active Probing</div>
+          <div class="block-desc">Lightweight ping tests real throughput behind captive portals.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #FBBF24;">🗂️ FIFO Delta Queue</div>
+          <div class="block-desc">Sends changes in strict sequential order on verified reconnect.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #FBBF24;">📦 Delta Cursors</div>
+          <div class="block-desc">Only transmits edited word diffs, conserving mobile cellular data.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 4 -->
+    <div class="layer" style="border-left-color: #8B5CF6;">
+      <div class="layer-title-box">
+        <div class="layer-icon">☁️</div>
+        <div class="layer-name">4. Server & Edge</div>
+        <div class="layer-sub">Cloudflare Edge & SQLite</div>
+      </div>
+      <div class="layer-blocks">
+        <div class="block">
+          <div class="block-title" style="color: #C084FC;">🌐 Cloudflare D1</div>
+          <div class="block-desc">Global serverless SQLite database on 300+ edge locations.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #C084FC;">🚀 Fastify API</div>
+          <div class="block-desc">High-throughput Node.js backend with native schema validation.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #C084FC;">🛡️ ULID Dedup</div>
+          <div class="block-desc">Database unique constraint safely absorbs repeated submit clicks.</div>
+        </div>
+        <div class="block">
+          <div class="block-title" style="color: #C084FC;">👥 Yjs CRDTs</div>
+          <div class="block-desc">Mathematical commutativity merges concurrent edits automatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>EduSync Architecture · Created by Kaushal</span>
+    <span>Live Prototype: edusync-tus.pages.dev</span>
+    <span>108/108 Tests Passing</span>
+  </div>
+</body>
+</html>

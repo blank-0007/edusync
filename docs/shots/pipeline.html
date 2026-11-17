@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 30px;
+    width: 1600px;
+    height: 900px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0B1426;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    padding-bottom: 16px;
+  }
+  .title { font-size: 28px; font-weight: 900; color: #FFFFFF; }
+  .title span { color: #3B82F6; }
+  .badge { background: #13223C; border: 1.5px solid #3B82F6; color: #60A5FA; padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+  
+  .pipeline-flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    align-items: stretch;
+    margin: 24px 0;
+    flex: 1;
+  }
+  .step-card {
+    background: #13223C;
+    border: 2px solid;
+    border-radius: 16px;
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    position: relative;
+  }
+  .step-num {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    width: max-content;
+    margin-bottom: 12px;
+  }
+  .step-icon { font-size: 38px; margin-bottom: 12px; }
+  .step-title { font-size: 18px; font-weight: 800; color: #FFFFFF; margin-bottom: 8px; }
+  .step-desc { font-size: 12.5px; color: #CBD5E1; line-height: 1.45; }
+  .step-metric {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 750;
+    color: #94A3B8;
+  }
+
+  .banner-explanation {
+    background: rgba(20, 184, 166, 0.12);
+    border: 1.5px solid #14B8A6;
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .banner-icon { font-size: 26px; }
+  .banner-text { font-size: 13.5px; color: #CCFBF1; line-height: 1.4; }
+  .banner-text strong { color: #FFFFFF; }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #94A3B8;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">EduSync <span>Data Synchronization Pipeline</span></div>
+    <div class="badge">END-TO-END DATA FLOW</div>
+  </div>
+
+  <div class="pipeline-flow">
+    <!-- Step 1 -->
+    <div class="step-card" style="border-color: #3B82F6;">
+      <div>
+        <div class="step-num" style="background: rgba(59, 130, 246, 0.2); color: #60A5FA;">STAGE 1</div>
+        <div class="step-icon">✍️</div>
+        <div class="step-title">Student Action</div>
+        <div class="step-desc">Student writes essay or clicks Submit Assignment. React updates screen instantly.</div>
+      </div>
+      <div class="step-metric">⚡ 0ms Input Latency · Zero Spinners</div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card" style="border-color: #14B8A6;">
+      <div>
+        <div class="step-num" style="background: rgba(20, 184, 166, 0.2); color: #2DD4BF;">STAGE 2</div>
+        <div class="step-icon">🔒</div>
+        <div class="step-title">Local Op-Log</div>
+        <div class="step-desc">Keystroke writes synchronously to IndexedDB on phone disk before touching the wire.</div>
+      </div>
+      <div class="step-metric">💾 Survives Browser Kill & Dead Battery</div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card" style="border-color: #F59E0B;">
+      <div>
+        <div class="step-num" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24;">STAGE 3</div>
+        <div class="step-icon">🏷️</div>
+        <div class="step-title">State & Receipt</div>
+        <div class="step-desc">Mints client-side ULID token; displays confirmed offline receipt and queued count.</div>
+      </div>
+      <div class="step-metric">🧾 Instant Official Receipt with 0 Wi-Fi</div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card" style="border-color: #8B5CF6;">
+      <div>
+        <div class="step-num" style="background: rgba(139, 92, 246, 0.2); color: #C084FC;">STAGE 4</div>
+        <div class="step-icon">📡</div>
+        <div class="step-title">Jittered Drain</div>
+        <div class="step-desc">Phone detects Wi-Fi; flushes queue with randomized backoff so routers don't crash.</div>
+      </div>
+      <div class="step-metric">🎲 Prevents 50-Student Network Crashes</div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card" style="border-color: #10B981;">
+      <div>
+        <div class="step-num" style="background: rgba(16, 185, 129, 0.2); color: #34D399;">STAGE 5</div>
+        <div class="step-icon">☁️</div>
+        <div class="step-title">D1 Reconcile</div>
+        <div class="step-desc">Cloudflare D1 verifies ULID, absorbs retries, checks 409 diffs, and marks "All Synced".</div>
+      </div>
+      <div class="step-metric">✅ 100% Convergence · 0 Duplicates</div>
+    </div>
+  </div>
+
+  <div class="banner-explanation">
+    <div class="banner-icon">💡</div>
+    <div class="banner-text">
+      <strong>Core Invariant:</strong> "The device is the source of truth, the network is an optimization." Even if connection drops permanently, every word is safely preserved on the device and can be audited.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>EduSync Pipeline · Created by Kaushal</span>
+    <span>Live Prototype: edusync-tus.pages.dev</span>
+    <span>108/108 Tests Passing</span>
+  </div>
+</body>
+</html>
