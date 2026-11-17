@@ -1,6 +1,7 @@
 # EduSync — Offline-First Learning Infrastructure
 
 > **🚀 Live Production Deployment (Cloudflare Pages):** **[https://edusync-tus.pages.dev/](https://edusync-tus.pages.dev/)**  
+> **🎥 Screen-Recorded Demo Video:** **[assets/EduSync-Demo.mp4](assets/EduSync-Demo.mp4)** (50s HD Walkthrough · No Audio)  
 > **📄 Judge Project Proposal (PDF):** **[assets/EduSync-Project-Proposal.pdf](assets/EduSync-Project-Proposal.pdf)** ([Markdown Version](docs/PROJECT_PROPOSAL.md))  
 > **Interactive Student Demo:** **[https://edusync-tus.pages.dev/?as=u_aarav&page=library](https://edusync-tus.pages.dev/?as=u_aarav&page=library)**  
 > **Judge Evaluation Report:** **[docs/JUDGE_REPORT.md](docs/JUDGE_REPORT.md)** (Technical Hackathon Score: 86.0/100 — Strong 1st Place Contender)  

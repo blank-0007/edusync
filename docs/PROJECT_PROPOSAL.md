@@ -1,6 +1,7 @@
 # EduSync: Technical Project Proposal
 
 > **Hackathon:** Technical EdTech Hackathon · **Problem 1 (Rated "Very Hard")**  
+> **🎥 Screen-Recorded Demo Video:** [`assets/EduSync-Demo.mp4`](../assets/EduSync-Demo.mp4) (50s HD Walkthrough · No Audio)  
 > **PDF Proposal Document:** [`assets/EduSync-Project-Proposal.pdf`](../assets/EduSync-Project-Proposal.pdf)  
 > **Live Production URL:** [https://edusync-tus.pages.dev/](https://edusync-tus.pages.dev/)  
 > **GitHub Repository:** [https://github.com/blank-0007/edusync](https://github.com/blank-0007/edusync)  

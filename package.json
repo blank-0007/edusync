@@ -21,5 +21,8 @@
   },
   "devDependencies": {
     "playwright-core": "^1.49.1"
+  },
+  "dependencies": {
+    "esbuild": "^0.21.5"
   }
 }
